@@ -2,14 +2,10 @@ const request = require("supertest");
 const app = require("../db/app.js");
 const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
-//const testData = require("../db/data/test-data/index.js");
-const categoryData = require("../db/data/test-data/categories.js");
-const commentData = require("../db/data/test-data/comments.js");
-const reviewData = require("../db/data/test-data/reviews.js");
-const userData = require("../db/data/test-data/users.js");
+const testData = require("../db/data/test-data/index.js");
 
 beforeEach(() => {
-  return seed({ categoryData, commentData, reviewData, userData });
+  return seed(testData);
 });
 
 afterAll(() => {
@@ -17,6 +13,18 @@ afterAll(() => {
 });
 
 describe("app", () => {
+  describe("Server errors", () => {
+    test("404: responds with error msg when given valid but non-existent path", () => {
+      return request(app)
+        .get("/faulty-path")
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Path not found");
+        });
+    });
+  });
+
   describe("GET /api/categories", () => {
     test("200: responds with an array of category objects", () => {
       return request(app)
