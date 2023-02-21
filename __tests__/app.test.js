@@ -39,5 +39,33 @@ describe("app", () => {
           });
         });
     });
+
+    describe("GET /api/reviews", () => {
+      test("200: responds with an array of review objects, ordered by desc date , which should have 9 properties", () => {
+        return request(app)
+          .get("/api/reviews")
+          .expect(200)
+          .then(({ body }) => {
+            const reviews = body.reviews;
+            const reviewsCopy = [...reviews];
+            const sortedReviews = reviewsCopy.sort((reviewA, reviewB) => {
+              return reviewA.created_at - reviewB.created_at;
+            });
+            expect(reviews.length).toBeGreaterThan(0);
+            expect(sortedReviews).toEqual(reviews);
+            reviews.forEach((review) => {
+              expect(review).toHaveProperty("owner");
+              expect(review).toHaveProperty("title");
+              expect(review).toHaveProperty("review_id");
+              expect(review).toHaveProperty("review_img_url");
+              expect(review).toHaveProperty("created_at");
+              expect(review).toHaveProperty("votes");
+              expect(review).toHaveProperty("designer");
+              expect(review).toHaveProperty("comment_count");
+              expect(review).toHaveProperty("category");
+            });
+          });
+      });
+    });
   });
 });
