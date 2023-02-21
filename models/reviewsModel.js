@@ -12,11 +12,10 @@ const fetchReviews = () => {
       ORDER BY created_at DESC;`
     )
     .then(({ rows: reviews }) => {
-      console.log(reviews);
       return reviews;
     })
     .catch((err) => {
-      next(err);
+      console.log(err);
     });
 };
 
