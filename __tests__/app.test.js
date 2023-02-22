@@ -101,5 +101,23 @@ describe("app", () => {
           expect(comments).toEqual([]);
         });
     });
+
+    test('404: responds with "Not found" error if given a non existent review id', () => {
+      return request(app)
+        .get("/api/reviews/999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("id provided does not exist");
+        });
+    });
+
+    test("400: responds with bad request error if not given a number ", () => {
+      return request(app)
+        .get("/api/reviews/words-not-num/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
   });
 });

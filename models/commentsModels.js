@@ -9,6 +9,9 @@ const fetchCommentsOfReview = (reviewId) => {
     .then((response) => {
       const commentsOfReview = response.rows;
       return commentsOfReview;
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
