@@ -9,14 +9,10 @@ const getCommentsOfReview = (request, response, next) => {
 
   Promise.all([checkReviewExistsPromise, fetchCommentsPromise])
     .then((result) => {
-      console.log(result);
       const reviews = result[1];
-      console.log(reviews, "reviews<<<<");
       response.status(200).send(reviews);
-      console.log(result);
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };

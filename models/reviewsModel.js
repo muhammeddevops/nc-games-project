@@ -28,7 +28,6 @@ const fetchReviewsById = (reviewId) => {
       .query(`SELECT * FROM reviews WHERE review_id = $1;`, [reviewId])
       .then((response) => {
         const selectedReviewArr = response.rows;
-        console.log(selectedReviewArr);
         if (!selectedReviewArr.length) {
           return Promise.reject({ status: 404 });
         } else {
