@@ -19,6 +19,7 @@ describe("app", () => {
         .get("/faulty-path")
         .expect(404)
         .then((response) => {
+          response;
           const errorMessage = response.body.msg;
           expect(errorMessage).toBe("Path not found");
         });
@@ -69,5 +70,46 @@ describe("app", () => {
     });
   });
 
-  describe("GET /api/reviews/:review_id", () => {});
+  describe("GET /api/reviews/:review_id", () => {
+    test("200: responds with a specific review object, which should have 9 properties", () => {
+      return request(app)
+        .get("/api/reviews/10")
+        .expect(200)
+        .then((response) => {
+          const review = response.body;
+          expect(review).toMatchObject({
+            review_id: expect.any(Number),
+            title: expect.any(String),
+            review_body: expect.any(String),
+            designer: expect.any(String),
+            review_img_url: expect.any(String),
+            votes: expect.any(Number),
+            category: expect.any(String),
+            owner: expect.any(String),
+            created_at: expect.any(String),
+          });
+        });
+    });
+    test('404: responds with "Not Found" error', () => {
+      return request(app)
+        .get("/api/reviews/999")
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("id provided does not exist");
+        });
+    });
+
+    test('400: responds with "Bad request" error', () => {
+      return request(app)
+        .get("/api/reviews/not-a-number")
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("Name of the group", () => {});
 });
