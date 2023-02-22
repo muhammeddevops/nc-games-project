@@ -110,6 +110,4 @@ describe("app", () => {
         });
     });
   });
-
-  describe("Name of the group", () => {});
 });
