@@ -17,8 +17,8 @@ const getReviewsById = (request, response, next) => {
     .then((review) => {
       response.status(200).send(review);
     })
-    .catch((err) => {
-      next(err);
+    .catch((error) => {
+      next(error);
     });
 };
 

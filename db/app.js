@@ -19,9 +19,9 @@ app.get("/api/reviews", getReviews);
 
 app.get("/api/reviews/:review_id", getReviewsById);
 
+app.use(handle400Errors);
 app.use(handleWrongPathErrors);
 app.use(handle404Errors);
 app.use(handle500Errors);
-app.use(handle400Errors);
 
 module.exports = app;

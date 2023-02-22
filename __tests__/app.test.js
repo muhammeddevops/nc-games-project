@@ -73,21 +73,21 @@ describe("app", () => {
   describe("GET /api/reviews/:review_id", () => {
     test("200: responds with a specific review object, which should have 9 properties", () => {
       return request(app)
-        .get("/api/reviews/10")
+        .get("/api/reviews/1")
         .expect(200)
         .then((response) => {
           const review = response.body;
-          expect(review).toMatchObject({
-            review_id: expect.any(Number),
-            title: expect.any(String),
-            review_body: expect.any(String),
-            designer: expect.any(String),
-            review_img_url: expect.any(String),
-            votes: expect.any(Number),
-            category: expect.any(String),
-            owner: expect.any(String),
-            created_at: expect.any(String),
-          });
+          expect(review.review_id).toBe(1);
+          expect(review.title).toBe("Agricola");
+          expect(review.review_body).toBe("Farmyard fun!");
+          expect(review.designer).toBe("Uwe Rosenberg");
+          expect(review.review_img_url).toBe(
+            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+          );
+          expect(review.votes).toBe(1);
+          expect(review.category).toBe("euro game");
+          expect(review.owner).toBe("mallionaire");
+          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
         });
     });
     test('404: responds with "Not Found" error', () => {

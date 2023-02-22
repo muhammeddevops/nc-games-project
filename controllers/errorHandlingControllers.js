@@ -20,7 +20,7 @@ const handle500Errors = (error, request, response, next) => {
 };
 
 const handle400Errors = (error, request, response, next) => {
-  if (error.status === 400) {
+  if (error.status === 400 || error.code === "22P02") {
     response.status(400).send({ msg: "Bad request" });
   } else {
     next(error);
