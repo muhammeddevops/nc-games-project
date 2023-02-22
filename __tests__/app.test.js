@@ -42,7 +42,7 @@ describe("app", () => {
   });
 
   describe("GET /api/reviews", () => {
-    test("200: responds with an array of review objects, ordered by desc date , which should have 9 properties", () => {
+    test("200: responds with an array of review objects, ordered by desc date ,each of which, should have 9 properties", () => {
       return request(app)
         .get("/api/reviews")
         .expect(200)
@@ -65,6 +65,40 @@ describe("app", () => {
             expect(review).toHaveProperty("comment_count");
             expect(review).toHaveProperty("category");
           });
+        });
+    });
+  });
+
+  describe("GET /api/reviews/:review_id/comments", () => {
+    test("200: responds with an array of comment objects if review has comments, ordered by desc date , each of which, should have 6 properties", () => {
+      return request(app)
+        .get("/api/reviews/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+          const commentsCopy = [...comments];
+          const sortedComments = commentsCopy.sort((commentA, commentB) => {
+            return commentA.created_at - commentB.created_at;
+          });
+          expect(sortedComments).toEqual(comments);
+          comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id");
+            expect(comment).toHaveProperty("votes");
+            expect(comment).toHaveProperty("created_at");
+            expect(comment).toHaveProperty("author");
+            expect(comment).toHaveProperty("body");
+            expect(comment).toHaveProperty("review_id");
+          });
+        });
+    });
+
+    test("200: responds with an empty array if review has no comments", () => {
+      return request(app)
+        .get("/api/reviews/5/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+          expect(comments).toEqual([]);
         });
     });
   });
