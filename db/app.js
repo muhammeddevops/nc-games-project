@@ -5,10 +5,13 @@ const {
   getReviewsById,
 } = require("../controllers/reviewsController.js");
 const {
-  handle404Errors,
+  getCommentsOfReview,
+} = require("../controllers/commentsControllers.js");
+
+const {
   handle500Errors,
   handleWrongPathErrors,
-  handle400Errors,
+  handleCustomErrors,
 } = require("../controllers/errorHandlingControllers.js");
 
 const app = express();
@@ -17,11 +20,12 @@ app.get("/api/categories", getCategories);
 
 app.get("/api/reviews", getReviews);
 
+app.get("/api/reviews/:review_id/comments", getCommentsOfReview);
+
 app.get("/api/reviews/:review_id", getReviewsById);
 
-app.use(handle400Errors);
 app.use(handleWrongPathErrors);
-app.use(handle404Errors);
+app.use(handleCustomErrors);
 app.use(handle500Errors);
 
 module.exports = app;

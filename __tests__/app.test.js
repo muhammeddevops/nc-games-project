@@ -3,6 +3,7 @@ const app = require("../db/app.js");
 const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
+const jestSorted = require("jest-sorted");
 
 beforeEach(() => {
   return seed(testData);
@@ -43,29 +44,80 @@ describe("app", () => {
   });
 
   describe("GET /api/reviews", () => {
-    test("200: responds with an array of review objects, ordered by desc date , which should have 9 properties", () => {
+    test("200: responds with an array of review objects, ordered by desc date ,each of which, should have 9 properties", () => {
       return request(app)
         .get("/api/reviews")
         .expect(200)
         .then(({ body }) => {
           const reviews = body.reviews;
-          const reviewsCopy = [...reviews];
-          const sortedReviews = reviewsCopy.sort((reviewA, reviewB) => {
-            return reviewA.created_at - reviewB.created_at;
-          });
-          expect(reviews.length).toBeGreaterThan(0);
-          expect(sortedReviews).toEqual(reviews);
+
+          expect(reviews).toBeSortedBy("created_at", { descending: true });
+
           reviews.forEach((review) => {
-            expect(review).toHaveProperty("owner");
-            expect(review).toHaveProperty("title");
-            expect(review).toHaveProperty("review_id");
-            expect(review).toHaveProperty("review_img_url");
-            expect(review).toHaveProperty("created_at");
-            expect(review).toHaveProperty("votes");
-            expect(review).toHaveProperty("designer");
-            expect(review).toHaveProperty("comment_count");
-            expect(review).toHaveProperty("category");
+            expect(review).toMatchObject({
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              review_img_url: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              designer: expect.any(String),
+              comment_count: expect.any(String),
+              category: expect.any(String),
+            });
           });
+        });
+    });
+  });
+
+  describe("GET /api/reviews/:review_id/comments", () => {
+    test("200: responds with an array of comment objects if review has comments, ordered by desc date , each of which, should have 6 properties", () => {
+      return request(app)
+        .get("/api/reviews/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+
+          expect(comments).toBeSortedBy("created_at", { descending: true });
+
+          comments.forEach((comment) => {
+            expect(comment).toMatchObject({
+              review_id: expect.any(Number),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+            });
+          });
+        });
+    });
+
+    test("200: responds with an empty array if review has no comments", () => {
+      return request(app)
+        .get("/api/reviews/5/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body;
+          expect(comments).toEqual([]);
+        });
+    });
+
+    test('404: responds with "Not found" error if given a non existent review id', () => {
+      return request(app)
+        .get("/api/reviews/999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("id provided does not exist");
+        });
+    });
+
+    test("400: responds with bad request error if not given a number ", () => {
+      return request(app)
+        .get("/api/reviews/words-not-num/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
