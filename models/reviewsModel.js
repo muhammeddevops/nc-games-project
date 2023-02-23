@@ -13,9 +13,6 @@ const fetchReviews = () => {
     )
     .then(({ rows: reviews }) => {
       return reviews;
-    })
-    .catch((err) => {
-      console.log(err);
     });
 };
 
