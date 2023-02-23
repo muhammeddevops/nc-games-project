@@ -123,7 +123,6 @@ describe("app", () => {
         .expect(201)
         .then((response) => {
           const postedComment = response.body;
-          console.log(postedComment);
           expect(postedComment.author).toBe("mallionaire");
           expect(postedComment.body).toBe("My family loved this game too!");
           expect(postedComment.comment_id).toBe(7);
