@@ -9,10 +9,9 @@ const {
 } = require("../controllers/commentsControllers.js");
 
 const {
-  handle404Errors,
   handle500Errors,
   handleWrongPathErrors,
-  handle400Errors,
+  handleCustomErrors,
 } = require("../controllers/errorHandlingControllers.js");
 
 const app = express();
@@ -25,9 +24,8 @@ app.get("/api/reviews/:review_id/comments", getCommentsOfReview);
 
 app.get("/api/reviews/:review_id", getReviewsById);
 
-app.use(handle400Errors);
 app.use(handleWrongPathErrors);
-app.use(handle404Errors);
+app.use(handleCustomErrors);
 app.use(handle500Errors);
 
 module.exports = app;
