@@ -110,4 +110,26 @@ describe("app", () => {
         });
     });
   });
+
+  describe("POST /api/reviews/:review_id/comments, adds comment to a review", () => {
+    test("201: should respond with newly posted comment", () => {
+      const newComment = {
+        body: "My family loved this game too!",
+        username: "mallionaire",
+      };
+      return request(app)
+        .post("/api/reviews/2/comments")
+        .send(newComment)
+        .expect(201)
+        .then((response) => {
+          const postedComment = response.body;
+          console.log(postedComment);
+          expect(postedComment.author).toBe("mallionaire");
+          expect(postedComment.body).toBe("My family loved this game too!");
+          expect(postedComment.comment_id).toBe(7);
+          expect(postedComment.review_id).toBe(2);
+          expect(postedComment.votes).toBe(0);
+        });
+    });
+  });
 });
