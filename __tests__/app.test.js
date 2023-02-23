@@ -162,4 +162,105 @@ describe("app", () => {
         });
     });
   });
+
+  describe("POST /api/reviews/:review_id/comments, adds comment to a review", () => {
+    test("201: should respond with newly posted comment", () => {
+      const newComment = {
+        body: "My family loved this game too!",
+        username: "mallionaire",
+      };
+      return request(app)
+        .post("/api/reviews/2/comments")
+        .send(newComment)
+        .expect(201)
+        .then((response) => {
+          const postedComment = response.body;
+          expect(postedComment.author).toBe("mallionaire");
+          expect(postedComment.body).toBe("My family loved this game too!");
+          expect(postedComment.comment_id).toBe(7);
+          expect(postedComment.review_id).toBe(2);
+          expect(postedComment.votes).toBe(0);
+        });
+    });
+
+    test("201: Should ignore any extra keys on comment and post without the extra keys", () => {
+      const newComment = {
+        body: "I dont like your review!",
+        username: "bainesface",
+        randomKey: "irrelevant",
+      };
+      return request(app)
+        .post("/api/reviews/4/comments")
+        .send(newComment)
+        .expect(201)
+        .then((response) => {
+          const postedComment = response.body;
+          expect(postedComment.author).toBe("bainesface");
+          expect(postedComment.body).toBe("I dont like your review!");
+          expect(postedComment.comment_id).toBe(7);
+          expect(postedComment.review_id).toBe(4);
+          expect(postedComment.votes).toBe(0);
+        });
+    });
+
+    test("404: should return not found error when review is not found", () => {
+      const newComment = {
+        body: "The game was not that good, I think youre exaggerating",
+        username: "dav3rid",
+      };
+      return request(app)
+        .post("/api/reviews/999/comments")
+        .send(newComment)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Not found");
+        });
+    });
+
+    test("400: Should return a bad request error if comment has incorrect properties", () => {
+      const newComment = {
+        randomKey: "notWhatYouNeed",
+      };
+      return request(app)
+        .post("/api/reviews/3/comments")
+        .send(newComment)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+
+    test("404: Should return a not found error when the username is non existent", () => {
+      const newComment = {
+        body: "im not a user but i still want to comment",
+        username: "Lebron J",
+      };
+      return request(app)
+        .post("/api/reviews/3/comments")
+        .send(newComment)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Not found");
+        });
+    });
+    test("400: should return Bad request error when given a id that is not a number", () => {
+      const newComment = {
+        body: "I like this review",
+        username: "philippaclaire9",
+      };
+      return request(app)
+        .post("/api/reviews/not-a-num/comments")
+        .send(newComment)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
 });
+
+// if username or body is empty 400 error
