@@ -293,6 +293,97 @@ describe("app", () => {
         });
     });
   });
-});
 
-// if username or body is empty 400 error
+  describe("PATCH /api/reviews/:review_id", () => {
+    test("200: should respond with the updated review", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(8);
+          expect(updatedReview.review_id).toBe(1);
+          expect(updatedReview.title).toBe("Agricola");
+          expect(updatedReview.review_body).toBe("Farmyard fun!");
+          expect(updatedReview.designer).toBe("Uwe Rosenberg");
+          expect(updatedReview.review_img_url).toBe(
+            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+          );
+          expect(updatedReview.category).toBe("euro game");
+          expect(updatedReview.owner).toBe("mallionaire");
+          expect(updatedReview.created_at).toBe("2021-01-18T10:00:20.514Z");
+        });
+    });
+
+    test("200: Should decrease the vote count if increment is a negative number", () => {
+      const voteIncrement = { inc_votes: -1 };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(0);
+        });
+    });
+
+    test("200: Should ignore any extra keys on the object and return review correctly patched", () => {
+      const voteIncrement = { inc_votes: 7, randomKey: "irrelevant" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(8);
+        });
+    });
+
+    test("404: Should respond with a not found error if review id is non existent", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/999")
+        .send(voteIncrement)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("id provided does not exist");
+        });
+    });
+    test("400: Should respond with a Bad request error if increment is not a number", () => {
+      const voteIncrement = { inc_votes: "not-a-num" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if no increment is provided", () => {
+      const voteIncrement = { randomKey: "random" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if review id is not a number", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/not-a-num")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+});

@@ -3,6 +3,7 @@ const { getCategories } = require("../controllers/categoriesController.js");
 const {
   getReviews,
   getReviewsById,
+  patchReviewVotesById,
 } = require("../controllers/reviewsController.js");
 const { postComment } = require("../controllers/commentsControllers.js");
 const {
@@ -29,6 +30,8 @@ app.get("/api/reviews/:review_id/comments", getCommentsOfReview);
 app.post("/api/reviews/:review_id/comments", postComment);
 
 app.get("/api/users", getUsers);
+
+app.patch("/api/reviews/:review_id", patchReviewVotesById);
 
 app.use(handleWrongPathErrors);
 app.use(handleCustomErrors);
