@@ -1,4 +1,5 @@
 const { request, response } = require("../db/app.js");
+const { fetchCategory } = require("../models/categoriesModel.js");
 const {
   fetchReviews,
   fetchReviewsById,
@@ -6,8 +7,20 @@ const {
 } = require("../models/reviewsModel.js");
 
 const getReviews = (request, response, next) => {
-  fetchReviews()
-    .then((reviews) => {
+  const { sort_by, order_by, category } = request.query;
+  const promiseArr = [];
+
+  const fetchReviewPromise = fetchReviews(sort_by, order_by, category);
+  promiseArr.push(fetchReviewPromise);
+  //const promiseArr = [fetchReviewPromise];
+
+  if (category) {
+    const checkCategoryPromise = fetchCategory(category);
+    promiseArr.push(checkCategoryPromise);
+  }
+
+  return Promise.all(promiseArr)
+    .then(([reviews]) => {
       response.status(200).send({ reviews });
     })
     .catch((err) => {

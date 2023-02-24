@@ -6,4 +6,15 @@ const fetchCategories = () => {
   });
 };
 
-module.exports = { fetchCategories };
+const fetchCategory = (category) => {
+  let queryString = "SELECT * FROM categories WHERE slug = $1";
+  const queryValues = [category];
+
+  return db.query(queryString, queryValues).then(({ rows }) => {
+    if (!rows.length) {
+      return Promise.reject({ status: 404, msg: "Category not found" });
+    } else return rows[0];
+  });
+};
+
+module.exports = { fetchCategories, fetchCategory };

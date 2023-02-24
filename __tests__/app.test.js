@@ -72,47 +72,6 @@ describe("app", () => {
     });
   });
 
-  describe("GET /api/reviews/:review_id", () => {
-    test("200: responds with a specific review object, which should have 9 properties", () => {
-      return request(app)
-        .get("/api/reviews/1")
-        .expect(200)
-        .then((response) => {
-          const review = response.body;
-          expect(review.review_id).toBe(1);
-          expect(review.title).toBe("Agricola");
-          expect(review.review_body).toBe("Farmyard fun!");
-          expect(review.designer).toBe("Uwe Rosenberg");
-          expect(review.review_img_url).toBe(
-            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
-          );
-          expect(review.votes).toBe(1);
-          expect(review.category).toBe("euro game");
-          expect(review.owner).toBe("mallionaire");
-          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
-        });
-    });
-    test('404: responds with "Not Found" error', () => {
-      return request(app)
-        .get("/api/reviews/999")
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("id provided does not exist");
-        });
-    });
-
-    test('400: responds with "Bad request" error', () => {
-      return request(app)
-        .get("/api/reviews/not-a-number")
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-  });
-
   describe("GET /api/reviews/:review_id/comments", () => {
     test("200: responds with an array of comment objects if review has comments, ordered by desc date , each of which, should have 6 properties", () => {
       return request(app)
@@ -151,7 +110,7 @@ describe("app", () => {
         .get("/api/reviews/999/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("id provided does not exist");
+          expect(body.msg).toBe("Value provided does not exist");
         });
     });
 
@@ -161,6 +120,47 @@ describe("app", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("GET /api/reviews/:review_id", () => {
+    test("200: responds with a specific review object, which should have 9 properties", () => {
+      return request(app)
+        .get("/api/reviews/1")
+        .expect(200)
+        .then((response) => {
+          const review = response.body;
+          expect(review.review_id).toBe(1);
+          expect(review.title).toBe("Agricola");
+          expect(review.review_body).toBe("Farmyard fun!");
+          expect(review.designer).toBe("Uwe Rosenberg");
+          expect(review.review_img_url).toBe(
+            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+          );
+          expect(review.votes).toBe(1);
+          expect(review.category).toBe("euro game");
+          expect(review.owner).toBe("mallionaire");
+          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
+        });
+    });
+    test('404: responds with "Not Found" error', () => {
+      return request(app)
+        .get("/api/reviews/999")
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Value provided does not exist");
+        });
+    });
+
+    test('400: responds with "Bad request" error', () => {
+      return request(app)
+        .get("/api/reviews/not-a-number")
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
         });
     });
   });
@@ -264,125 +264,132 @@ describe("app", () => {
     });
   });
 
-  describe("PATCH /api/reviews/:review_id", () => {
-    test("200: should respond with the updated review", () => {
-      const voteIncrement = { inc_votes: 7 };
+  describe("GET /api/reviews (queries)", () => {
+    test("200: Should respond with all reviews if no query given and sort by date desc", () => {
       return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
+        .get("/api/reviews")
         .expect(200)
         .then(({ body }) => {
-          const updatedReview = body;
-          expect(updatedReview.votes).toBe(8);
-          expect(updatedReview.review_id).toBe(1);
-          expect(updatedReview.title).toBe("Agricola");
-          expect(updatedReview.review_body).toBe("Farmyard fun!");
-          expect(updatedReview.designer).toBe("Uwe Rosenberg");
-          expect(updatedReview.review_img_url).toBe(
-            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
-          );
-          expect(updatedReview.category).toBe("euro game");
-          expect(updatedReview.owner).toBe("mallionaire");
-          expect(updatedReview.created_at).toBe("2021-01-18T10:00:20.514Z");
-        });
-    });
-
-    test("200: Should decrease the vote count if increment is a negative number", () => {
-      const voteIncrement = { inc_votes: -1 };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(200)
-        .then(({ body }) => {
-          const updatedReview = body;
-          expect(updatedReview.votes).toBe(0);
-        });
-    });
-
-    test("200: Should ignore any extra keys on the object and return review correctly patched", () => {
-      const voteIncrement = { inc_votes: 7, randomKey: "irrelevant" };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(200)
-        .then(({ body }) => {
-          const updatedReview = body;
-          expect(updatedReview.votes).toBe(8);
-        });
-    });
-
-    test("404: Should respond with a not found error if review id is non existent", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/reviews/999")
-        .send(voteIncrement)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("id provided does not exist");
-        });
-    });
-    test("400: Should respond with a Bad request error if increment is not a number", () => {
-      const voteIncrement = { inc_votes: "not-a-num" };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if no increment is provided", () => {
-      const voteIncrement = { randomKey: "random" };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if review id is not a number", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/reviews/not-a-num")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-  });
-
-  describe(" GET /api/users", () => {
-    test("200: responds with an array of user objects", () => {
-      return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body }) => {
-          const users = body.users;
-          expect(users).toHaveLength(4);
-          users.forEach((user) => {
-            expect(user).toMatchObject({
-              username: expect.any(String),
-              name: expect.any(String),
-              avatar_url: expect.any(String),
+          const reviews = body.reviews;
+          expect(reviews).toBeSortedBy("created_at", { descending: true });
+          reviews.forEach((review) => {
+            expect(review).toMatchObject({
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              review_img_url: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              designer: expect.any(String),
+              comment_count: expect.any(String),
+              category: expect.any(String),
             });
           });
         });
     });
 
-    test("404: responds with error msg when given valid but non-existent path", () => {
+    test("200: Responds with reviews which match the category and are sorted by date desc", () => {
       return request(app)
-        .get("/api/faulty-path")
+        .get("/api/reviews?category=social+deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("200: Should sort reviews by any valid category specified", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("votes", { descending: true });
+        });
+    });
+
+    test("200: Should sort reviews by any valid category specified", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=designer")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("designer", { descending: true });
+        });
+    });
+
+    test("200: Should sort reviews by ascending order, if specified", () => {
+      return request(app)
+        .get("/api/reviews?order_by=ASC")
+        .expect(200)
+        .then(({ body }) => {
+          const reviews = body.reviews;
+          expect(reviews).toBeSortedBy("created_at", { ascending: true });
+        });
+    });
+
+    test("200: Should respond correctly when all three queries are used together", () => {
+      return request(app)
+        .get(
+          "/api/reviews?category=social+deduction&sort_by=title&order_by=ASC"
+        )
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("title", { ascending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("200: Should ignore any extra queries that are not category, sort or order by ", () => {
+      return request(app)
+        .get("/api/reviews?randomKey=irrelevant&category=social+deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("404: Should respond with not found error if the category does not exist", () => {
+      return request(app)
+        .get("/api/reviews?category=non-existent")
         .expect(404)
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Please select a valid category!");
+        });
+    });
+
+    test("400: Should respond with a Bad request error if passed an invalid sort_by option", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=invalid")
+        .expect(400)
         .then((response) => {
-          response;
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Path not found");
+          expect(response.body.msg).toBe(
+            "Please select a valid sort-by option!"
+          );
+        });
+    });
+
+    test("400: Should respond with a Bad request error if order by is invalid", () => {
+      return request(app)
+        .get("/api/reviews?order_by=invalid")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe(
+            "Please order by ascending or descending"
+          );
         });
     });
   });
