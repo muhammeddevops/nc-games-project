@@ -1,5 +1,9 @@
-const categories = require("../db/data/test-data/categories.js");
-const { fetchReviews, fetchReviewsById } = require("../models/reviewsModel.js");
+const { request, response } = require("../db/app.js");
+const {
+  fetchReviews,
+  fetchReviewsById,
+  updateReviewVotesById,
+} = require("../models/reviewsModel.js");
 
 const getReviews = (request, response, next) => {
   const { sort_by, order_by, category } = request.query;
@@ -25,4 +29,17 @@ const getReviewsById = (request, response, next) => {
     });
 };
 
-module.exports = { getReviews, getReviewsById };
+const patchReviewVotesById = (request, response, next) => {
+  const { review_id } = request.params;
+  const { inc_votes } = request.body;
+
+  updateReviewVotesById(review_id, inc_votes)
+    .then((updatedReview) => {
+      response.status(200).send(updatedReview);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getReviews, getReviewsById, patchReviewVotesById };

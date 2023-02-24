@@ -59,8 +59,8 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
 const fetchReviewsById = (reviewId) => {
   return db
     .query(`SELECT * FROM reviews WHERE review_id = $1;`, [reviewId])
-    .then((response) => {
-      const selectedReviewArr = response.rows;
+    .then(({ rows }) => {
+      const selectedReviewArr = rows;
       if (!selectedReviewArr.length) {
         return Promise.reject({ status: 404 });
       } else {
@@ -69,4 +69,23 @@ const fetchReviewsById = (reviewId) => {
     });
 };
 
-module.exports = { fetchReviews, fetchReviewsById };
+const updateReviewVotesById = (reviewId, votesInc) => {
+  return db
+    .query(
+      `UPDATE reviews
+  SET votes = votes + $1
+  WHERE review_id = $2
+  RETURNING *`,
+      [votesInc, reviewId]
+    )
+    .then(({ rows }) => {
+      const updatedReviewArr = rows;
+      if (!updatedReviewArr.length) {
+        return Promise.reject({ status: 404 });
+      } else {
+        return updatedReviewArr[0];
+      }
+    });
+};
+
+module.exports = { fetchReviews, fetchReviewsById, updateReviewVotesById };
