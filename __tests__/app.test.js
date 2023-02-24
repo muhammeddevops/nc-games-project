@@ -36,8 +36,10 @@ describe("app", () => {
           const categories = body.categories;
           expect(categories).toHaveLength(4);
           categories.forEach((category) => {
-            expect(category).toHaveProperty("slug");
-            expect(category).toHaveProperty("description");
+            expect(category).toMatchObject({
+              slug: expect.any(String),
+              description: expect.any(String),
+            });
           });
         });
     });
@@ -258,6 +260,36 @@ describe("app", () => {
         .then((response) => {
           const errorMessage = response.body.msg;
           expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
+  describe(" GET /api/users", () => {
+    test("200: responds with an array of user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const users = body.users;
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
+          });
+        });
+    });
+
+    test("404: responds with error msg when given valid but non-existent path", () => {
+      return request(app)
+        .get("/api/faulty-path")
+        .expect(404)
+        .then((response) => {
+          response;
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Path not found");
         });
     });
   });
