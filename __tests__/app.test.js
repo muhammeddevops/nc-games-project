@@ -36,8 +36,10 @@ describe("app", () => {
           const categories = body.categories;
           expect(categories).toHaveLength(4);
           categories.forEach((category) => {
-            expect(category).toHaveProperty("slug");
-            expect(category).toHaveProperty("description");
+            expect(category).toMatchObject({
+              slug: expect.any(String),
+              description: expect.any(String),
+            });
           });
         });
     });
@@ -258,6 +260,42 @@ describe("app", () => {
         .then((response) => {
           const errorMessage = response.body.msg;
           expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("GET /api/reviews (queries)", () => {
+    test("200: Should respond with all reviews if no query given and sort by date desc", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          const reviews = body.reviews;
+
+          reviews.forEach((review) => {
+            expect(review).toMatchObject({
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              review_img_url: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              designer: expect.any(String),
+              comment_count: expect.any(String),
+              category: expect.any(String),
+            });
+          });
+        });
+    });
+
+    test("200: Should respond with array of reviews which match the specified category", () => {
+      return request(app)
+        .get(
+          "/api/reviews?category=social+deduction&sort_by=title&order_by=ASC"
+        )
+        .expect(200)
+        .then((response) => {
+          console.log(response.body.reviews);
         });
     });
   });
