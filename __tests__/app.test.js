@@ -127,21 +127,30 @@ describe("app", () => {
   describe("GET /api/reviews/:review_id", () => {
     test("200: responds with a specific review object, which should have 9 properties", () => {
       return request(app)
-        .get("/api/reviews/1")
+        .get("/api/reviews/3")
         .expect(200)
         .then((response) => {
           const review = response.body;
-          expect(review.review_id).toBe(1);
-          expect(review.title).toBe("Agricola");
-          expect(review.review_body).toBe("Farmyard fun!");
-          expect(review.designer).toBe("Uwe Rosenberg");
+          expect(review.review_id).toBe(3);
+          expect(review.title).toBe("Ultimate Werewolf");
+          expect(review.review_body).toBe("We couldn't find the werewolf!");
+          expect(review.designer).toBe("Akihisa Okui");
           expect(review.review_img_url).toBe(
-            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+            "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?w=700&h=700"
           );
-          expect(review.votes).toBe(1);
-          expect(review.category).toBe("euro game");
-          expect(review.owner).toBe("mallionaire");
-          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
+          expect(review.votes).toBe(5);
+          expect(review.category).toBe("social deduction");
+          expect(review.owner).toBe("bainesface");
+          expect(review.created_at).toBe("2021-01-18T10:01:41.251Z");
+          expect(review.comment_count).toBe(3);
+        });
+    });
+    test("200: Should have a comment_count key which is the number of comments on a review ", () => {
+      return request(app)
+        .get("/api/reviews/2")
+        .expect(200)
+        .then(({ body: review }) => {
+          expect(review.comment_count).toBe(3);
         });
     });
     test('404: responds with "Not Found" error', () => {
