@@ -3,7 +3,6 @@ const { fetchReviews, fetchReviewsById } = require("../models/reviewsModel.js");
 
 const getReviews = (request, response, next) => {
   const { sort_by, order_by, category } = request.query;
-  console.log(request.query);
 
   fetchReviews(sort_by, order_by, category)
     .then((reviews) => {

@@ -110,7 +110,7 @@ describe("app", () => {
         .get("/api/reviews/999/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("id provided does not exist");
+          expect(body.msg).toBe("Value provided does not exist");
         });
     });
 
@@ -150,7 +150,7 @@ describe("app", () => {
         .expect(404)
         .then((response) => {
           const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("id provided does not exist");
+          expect(errorMessage).toBe("Value provided does not exist");
         });
     });
 
@@ -271,7 +271,7 @@ describe("app", () => {
         .expect(200)
         .then(({ body }) => {
           const reviews = body.reviews;
-
+          expect(reviews).toBeSortedBy("created_at", { descending: true });
           reviews.forEach((review) => {
             expect(review).toMatchObject({
               owner: expect.any(String),
@@ -288,17 +288,109 @@ describe("app", () => {
         });
     });
 
-    test("200: Should respond with array of reviews which match the specified category", () => {
+    test("200: Responds with reviews which match the category and are sorted by date desc", () => {
+      return request(app)
+        .get("/api/reviews?category=social+deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("200: Should sort reviews by any valid category specified", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("votes", { descending: true });
+        });
+    });
+
+    test("200: Should sort reviews by any valid category specified", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=designer")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("designer", { descending: true });
+        });
+    });
+
+    test("200: Should sort reviews by ascending order, if specified", () => {
+      return request(app)
+        .get("/api/reviews?order_by=ASC")
+        .expect(200)
+        .then(({ body }) => {
+          const reviews = body.reviews;
+          expect(reviews).toBeSortedBy("created_at", { ascending: true });
+        });
+    });
+
+    test("200: Should respond correctly when all three queries are used together", () => {
       return request(app)
         .get(
           "/api/reviews?category=social+deduction&sort_by=title&order_by=ASC"
         )
         .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+          expect(reviewsArr).toBeSortedBy("title", { ascending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("200: Should ignore any extra queries that are not category, sort or order by ", () => {
+      return request(app)
+        .get("/api/reviews?randomKey=irrelevant&category=social+deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.reviews;
+
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("404: Should respond with not found error if the category does not exist", () => {
+      return request(app)
+        .get("/api/reviews?category=non-existent")
+        .expect(404)
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Please select a valid category!");
+        });
+    });
+
+    test("400: Should respond with a Bad request error if passed an invalid sort_by option", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=invalid")
+        .expect(400)
         .then((response) => {
-          console.log(response.body.reviews);
+          expect(response.body.msg).toBe(
+            "Please select a valid sort-by option!"
+          );
+        });
+    });
+
+    test("400: Should respond with a Bad request error if order by is invalid", () => {
+      return request(app)
+        .get("/api/reviews?order_by=invalid")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe(
+            "Please order by ascending or descending"
+          );
         });
     });
   });
 });
-
-// if username or body is empty 400 error

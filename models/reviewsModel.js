@@ -21,11 +21,10 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
     "comment_count",
   ];
 
-  console.log(validCategories.includes(category));
   if (!validSortByProperties.includes(sortBy)) {
     return Promise.reject({
       status: 400,
-      msg: "Please select a valid sort-by option",
+      msg: "invalid sort_by",
     });
   }
   if (!validOrderOptions.includes(orderBy)) {
@@ -52,8 +51,6 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
   }
   queryString += `GROUP BY reviews.review_id ORDER BY ${sortBy} ${orderBy};`;
 
-  console.log(queryString);
-  console.log(queryValues);
   return db.query(queryString, queryValues).then(({ rows }) => {
     return rows;
   });
