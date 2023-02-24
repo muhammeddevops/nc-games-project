@@ -27,6 +27,8 @@ const handleCustomErrors = (error, request, response, next) => {
     response.status(404).send({ msg: "Please select a valid category!" });
   } else if (error.msg === "invalid sort_by") {
     response.status(400).send({ msg: "Please select a valid sort-by option!" });
+  } else if (error.msg === "invalid comment id") {
+    response.status(404).send({ msg: "Invalid comment id" });
   } else if (error.status === 404) {
     response.status(404).send({ msg: "Value provided does not exist" });
   } else {
