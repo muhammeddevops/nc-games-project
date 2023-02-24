@@ -3,12 +3,7 @@ const db = require("../db/connection.js");
 const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
   const queryValues = [];
 
-  if (category) {
-    category = category.toLowerCase();
-  }
-
   const validOrderOptions = ["ASC", "DESC"];
-  const validCategories = ["euro game", "social deduction", "dexterity"];
   const validSortByProperties = [
     "owner",
     "title",
@@ -21,35 +16,42 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
     "comment_count",
   ];
 
-  if (!validSortByProperties.includes(sortBy)) {
-    return Promise.reject({
-      status: 400,
-      msg: "invalid sort_by",
-    });
-  }
-  if (!validOrderOptions.includes(orderBy)) {
-    return Promise.reject({
-      status: 400,
-      msg: "Please select a valid order-by option",
-    });
-  }
-
   let queryString = `SELECT reviews.*, 
   COUNT(comment_id) AS comment_count 
   FROM reviews 
   LEFT JOIN comments 
   ON comments.review_id = reviews.review_id `;
 
-  if (category !== undefined && !validCategories.includes(category)) {
-    return Promise.reject({
-      status: 404,
-      msg: "Category not found",
-    });
-  } else if (validCategories.includes(category) && category !== undefined) {
-    queryValues.push(category);
+  // if (category !== undefined && !validCategories.includes(category)) {
+  //   return Promise.reject({
+  //     status: 404,
+  //     msg: "Category not found",
+  //   });
+  // } else
+  //if (category !== undefined) {
+  if (category) {
     queryString += ` WHERE reviews.category = $1 `;
+    queryValues.push(category);
   }
-  queryString += `GROUP BY reviews.review_id ORDER BY ${sortBy} ${orderBy};`;
+  // }
+  queryString += `GROUP BY reviews.review_id ORDER BY `;
+
+  if (validSortByProperties.includes(sortBy)) {
+    queryString += `${sortBy} `;
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: "invalid sort_by",
+    });
+  }
+  if (validOrderOptions.includes(orderBy)) {
+    queryString += `${orderBy};`;
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: "Please select a valid order-by option",
+    });
+  }
 
   return db.query(queryString, queryValues).then(({ rows }) => {
     return rows;

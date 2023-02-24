@@ -13,6 +13,7 @@ const {
   handle500Errors,
   handleWrongPathErrors,
   handleCustomErrors,
+  handleSQLErrors,
 } = require("../controllers/errorHandlingControllers.js");
 const { getUsers } = require("../controllers/usersControllers.js");
 
@@ -33,8 +34,9 @@ app.get("/api/users", getUsers);
 
 app.patch("/api/reviews/:review_id", patchReviewVotesById);
 
-app.use(handleWrongPathErrors);
 app.use(handleCustomErrors);
+app.use(handleSQLErrors);
+app.use(handleWrongPathErrors);
 app.use(handle500Errors);
 
 module.exports = app;
