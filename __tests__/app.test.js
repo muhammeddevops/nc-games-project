@@ -402,4 +402,28 @@ describe("app", () => {
         });
     });
   });
+
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("204: Should delete the specified comment and return status 204 with no content", () => {
+      return request(app).delete("/api/comments/5").expect(204);
+    });
+    test("404: Should respond with a Not found error if passed an id that is valid but does not exist", () => {
+      return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Invalid comment id");
+        });
+    });
+    test("400: Should respond with a Bad request error if passed an id that is not a string", () => {
+      return request(app)
+        .delete("/api/comments/invalid")
+        .expect(400)
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
 });

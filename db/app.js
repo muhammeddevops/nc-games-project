@@ -8,6 +8,7 @@ const {
 const { postComment } = require("../controllers/commentsControllers.js");
 const {
   getCommentsOfReview,
+  deleteCommentById,
 } = require("../controllers/commentsControllers.js");
 const {
   handle500Errors,
@@ -33,6 +34,8 @@ app.post("/api/reviews/:review_id/comments", postComment);
 app.get("/api/users", getUsers);
 
 app.patch("/api/reviews/:review_id", patchReviewVotesById);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.use(handleCustomErrors);
 app.use(handleSQLErrors);
