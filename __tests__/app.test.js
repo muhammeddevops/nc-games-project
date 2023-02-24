@@ -72,6 +72,47 @@ describe("app", () => {
     });
   });
 
+  describe("GET /api/reviews/:review_id", () => {
+    test("200: responds with a specific review object, which should have 9 properties", () => {
+      return request(app)
+        .get("/api/reviews/1")
+        .expect(200)
+        .then((response) => {
+          const review = response.body;
+          expect(review.review_id).toBe(1);
+          expect(review.title).toBe("Agricola");
+          expect(review.review_body).toBe("Farmyard fun!");
+          expect(review.designer).toBe("Uwe Rosenberg");
+          expect(review.review_img_url).toBe(
+            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+          );
+          expect(review.votes).toBe(1);
+          expect(review.category).toBe("euro game");
+          expect(review.owner).toBe("mallionaire");
+          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
+        });
+    });
+    test('404: responds with "Not Found" error', () => {
+      return request(app)
+        .get("/api/reviews/999")
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("id provided does not exist");
+        });
+    });
+
+    test('400: responds with "Bad request" error', () => {
+      return request(app)
+        .get("/api/reviews/not-a-number")
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
   describe("GET /api/reviews/:review_id/comments", () => {
     test("200: responds with an array of comment objects if review has comments, ordered by desc date , each of which, should have 6 properties", () => {
       return request(app)
@@ -120,47 +161,6 @@ describe("app", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
-        });
-    });
-  });
-
-  describe("GET /api/reviews/:review_id", () => {
-    test("200: responds with a specific review object, which should have 9 properties", () => {
-      return request(app)
-        .get("/api/reviews/1")
-        .expect(200)
-        .then((response) => {
-          const review = response.body;
-          expect(review.review_id).toBe(1);
-          expect(review.title).toBe("Agricola");
-          expect(review.review_body).toBe("Farmyard fun!");
-          expect(review.designer).toBe("Uwe Rosenberg");
-          expect(review.review_img_url).toBe(
-            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
-          );
-          expect(review.votes).toBe(1);
-          expect(review.category).toBe("euro game");
-          expect(review.owner).toBe("mallionaire");
-          expect(review.created_at).toBe("2021-01-18T10:00:20.514Z");
-        });
-    });
-    test('404: responds with "Not Found" error', () => {
-      return request(app)
-        .get("/api/reviews/999")
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("id provided does not exist");
-        });
-    });
-
-    test('400: responds with "Bad request" error', () => {
-      return request(app)
-        .get("/api/reviews/not-a-number")
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
         });
     });
   });
@@ -264,36 +264,6 @@ describe("app", () => {
     });
   });
 
-  describe(" GET /api/users", () => {
-    test("200: responds with an array of user objects", () => {
-      return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body }) => {
-          const users = body.users;
-          expect(users).toHaveLength(4);
-          users.forEach((user) => {
-            expect(user).toMatchObject({
-              username: expect.any(String),
-              name: expect.any(String),
-              avatar_url: expect.any(String),
-            });
-          });
-        });
-    });
-
-    test("404: responds with error msg when given valid but non-existent path", () => {
-      return request(app)
-        .get("/api/faulty-path")
-        .expect(404)
-        .then((response) => {
-          response;
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Path not found");
-        });
-    });
-  });
-
   describe("PATCH /api/reviews/:review_id", () => {
     test("200: should respond with the updated review", () => {
       const voteIncrement = { inc_votes: 7 };
@@ -383,6 +353,36 @@ describe("app", () => {
         .then((response) => {
           const errorMessage = response.body.msg;
           expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
+  describe(" GET /api/users", () => {
+    test("200: responds with an array of user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const users = body.users;
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
+          });
+        });
+    });
+
+    test("404: responds with error msg when given valid but non-existent path", () => {
+      return request(app)
+        .get("/api/faulty-path")
+        .expect(404)
+        .then((response) => {
+          response;
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Path not found");
         });
     });
   });
