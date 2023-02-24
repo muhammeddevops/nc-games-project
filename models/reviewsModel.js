@@ -22,18 +22,11 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
   LEFT JOIN comments 
   ON comments.review_id = reviews.review_id `;
 
-  // if (category !== undefined && !validCategories.includes(category)) {
-  //   return Promise.reject({
-  //     status: 404,
-  //     msg: "Category not found",
-  //   });
-  // } else
-  //if (category !== undefined) {
   if (category) {
     queryString += ` WHERE reviews.category = $1 `;
     queryValues.push(category);
   }
-  // }
+
   queryString += `GROUP BY reviews.review_id ORDER BY `;
 
   if (validSortByProperties.includes(sortBy)) {
