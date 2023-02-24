@@ -12,7 +12,6 @@ const getReviews = (request, response, next) => {
 
   const fetchReviewPromise = fetchReviews(sort_by, order_by, category);
   promiseArr.push(fetchReviewPromise);
-  //const promiseArr = [fetchReviewPromise];
 
   if (category) {
     const checkCategoryPromise = fetchCategory(category);
