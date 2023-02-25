@@ -25,6 +25,8 @@ const handleCustomErrors = (error, request, response, next) => {
       .send({ msg: "Please order by ascending or descending" });
   } else if (error.msg === "Category not found") {
     response.status(404).send({ msg: "Please select a valid category!" });
+  } else if (error.msg === "User not found") {
+    response.status(404).send({ msg: "User not found" });
   } else if (error.msg === "invalid sort_by") {
     response.status(400).send({ msg: "Please select a valid sort-by option!" });
   } else if (error.msg === "invalid comment id") {

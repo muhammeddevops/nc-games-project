@@ -384,10 +384,9 @@ describe("app", () => {
       return request(app)
         .get("/api/reviews?sort_by=invalid")
         .expect(400)
-        .then((response) => {
-          expect(response.body.msg).toBe(
-            "Please select a valid sort-by option!"
-          );
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Please select a valid sort-by option!");
         });
     });
 
@@ -395,10 +394,9 @@ describe("app", () => {
       return request(app)
         .get("/api/reviews?order_by=invalid")
         .expect(400)
-        .then((response) => {
-          expect(response.body.msg).toBe(
-            "Please order by ascending or descending"
-          );
+        .then(({ body }) => {
+          const errorMessage = body.msg;
+          expect(errorMessage).toBe("Please order by ascending or descending");
         });
     });
   });
@@ -445,6 +443,30 @@ describe("app", () => {
             "GET /api/users": expect.any(Object),
             "DELETE /api/comments/:comment_id": expect.any(Object),
           });
+        });
+    });
+  });
+
+  describe("GET /api/users/:username", () => {
+    test("returns a user object with the keys:- username, avatar_url and name", () => {
+      return request(app)
+        .get("/api/users/bainesface")
+        .expect(200)
+        .then(({ body }) => {
+          const user = body;
+          expect(user.username).toBe("bainesface");
+          expect(user.name).toBe("sarah");
+          expect(user.avatar_url).toBe(
+            "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+          );
+        });
+    });
+    test("when given an invalid username, return an appropriate response", () => {
+      return request(app)
+        .get("/api/users/invalid")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User not found");
         });
     });
   });
