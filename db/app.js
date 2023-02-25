@@ -17,9 +17,12 @@ const {
   handleSQLErrors,
 } = require("../controllers/errorHandlingControllers.js");
 const { getUsers } = require("../controllers/usersControllers.js");
+const { getApi } = require("../controllers/apiController.js");
 
 const app = express();
 app.use(express.json());
+
+app.get("/api", getApi);
 
 app.get("/api/categories", getCategories);
 
