@@ -32,7 +32,7 @@
     }
   },
   "GET /api/reviews/:review_id": {
-    "description": "serves a sinlge review object for a particular review id",
+    "description": "serves a single review object for a particular review id",
     "queries": [],
     "exampleApi": "/api/reviews/2",
     "exampleResponseForAboveApi": {
