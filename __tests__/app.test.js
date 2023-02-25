@@ -426,4 +426,26 @@ describe("app", () => {
         });
     });
   });
+
+  describe("200: GET /api", () => {
+    test("200: Should return a json object describing all the available endpoints that the API has", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          const endpoints = body.endpoints;
+          expect(endpoints).toMatchObject({
+            "GET /api": expect.any(Object),
+            "GET /api/categories": expect.any(Object),
+            "GET /api/reviews": expect.any(Object),
+            "GET /api/reviews/:review_id": expect.any(Object),
+            "GET /api/reviews/:review_id/comments": expect.any(Object),
+            "POST /api/reviews/:review_id/comments": expect.any(Object),
+            "PATCH /api/reviews/:review_id": expect.any(Object),
+            "GET /api/users": expect.any(Object),
+            "DELETE /api/comments/:comment_id": expect.any(Object),
+          });
+        });
+    });
+  });
 });
