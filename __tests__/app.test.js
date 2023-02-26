@@ -273,6 +273,99 @@ describe("app", () => {
     });
   });
 
+  describe("PATCH /api/reviews/:review_id", () => {
+    test("200: should respond with the updated review", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(8);
+          expect(updatedReview.review_id).toBe(1);
+          expect(updatedReview.title).toBe("Agricola");
+          expect(updatedReview.review_body).toBe("Farmyard fun!");
+          expect(updatedReview.designer).toBe("Uwe Rosenberg");
+          expect(updatedReview.review_img_url).toBe(
+            "https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700"
+          );
+          expect(updatedReview.category).toBe("euro game");
+          expect(updatedReview.owner).toBe("mallionaire");
+          expect(updatedReview.created_at).toBe("2021-01-18T10:00:20.514Z");
+        });
+    });
+
+    test("200: Should decrease the vote count if increment is a negative number", () => {
+      const voteIncrement = { inc_votes: -1 };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(0);
+        });
+    });
+
+    test("200: Should ignore any extra keys on the object and return review correctly patched", () => {
+      const voteIncrement = { inc_votes: 7, randomKey: "irrelevant" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedReview = body;
+          expect(updatedReview.votes).toBe(8);
+        });
+    });
+
+    test("404: Should respond with a not found error if review id is non existent", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/999")
+        .send(voteIncrement)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Value provided does not exist");
+        });
+    });
+    test("400: Should respond with a Bad request error if increment is not a number", () => {
+      const voteIncrement = { inc_votes: "not-a-num" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if no increment is provided", () => {
+      const voteIncrement = { randomKey: "random" };
+      return request(app)
+        .patch("/api/reviews/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if review id is not a number", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/reviews/not-a-num")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
   describe("GET /api/reviews (queries)", () => {
     test("200: Should respond with all reviews if no query given and sort by date desc", () => {
       return request(app)
@@ -467,6 +560,213 @@ describe("app", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("User not found");
+        });
+    });
+  });
+
+  describe("PATCH /api/comments/:comment_id", () => {
+    test("200: should respond with the updated comment", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedComment = body;
+          expect(updatedComment.votes).toBe(23);
+          expect(updatedComment.review_id).toBe(2);
+          expect(updatedComment.author).toBe("bainesface");
+          expect(updatedComment.body).toBe("I loved this game too!");
+          expect(updatedComment.comment_id).toBe(1);
+          expect(updatedComment.created_at).toBe("2017-11-22T12:43:33.389Z");
+        });
+    });
+
+    test("200: Should decrease the vote count if increment is a negative number", () => {
+      const voteIncrement = { inc_votes: -1 };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedComment = body;
+          expect(updatedComment.votes).toBe(15);
+        });
+    });
+
+    test("200: Should ignore any extra keys on the object and return review correctly patched", () => {
+      const voteIncrement = { inc_votes: 7, randomKey: "irrelevant" };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteIncrement)
+        .expect(200)
+        .then(({ body }) => {
+          const updatedComment = body;
+          expect(updatedComment.votes).toBe(23);
+        });
+    });
+
+    test("404: Should respond with a not found error if review id is non existent", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/comments/999")
+        .send(voteIncrement)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Value provided does not exist");
+        });
+    });
+    test("400: Should respond with a Bad request error if increment is not a number", () => {
+      const voteIncrement = { inc_votes: "not-a-num" };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if no increment is provided", () => {
+      const voteIncrement = { randomKey: "random" };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+    test("400: should respond with a Bad request error if review id is not a number", () => {
+      const voteIncrement = { inc_votes: 7 };
+      return request(app)
+        .patch("/api/comments/not-a-num")
+        .send(voteIncrement)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
+
+  describe("POST /api/reviews", () => {
+    test("201: should accept review object and respond with posted review that has a key of comment count", () => {
+      const newReview = {
+        owner: "bainesface",
+        title: "Interesting review",
+        review_body: "Great game",
+        designer: "Abdullah",
+        category: "dexterity",
+        review_img_url: "randomUrl",
+      };
+      return request(app)
+        .post(`/api/reviews`)
+        .send(newReview)
+        .expect(201)
+        .then(({ body }) => {
+          const review = body;
+          expect(review).toHaveProperty("review_id", 14);
+          expect(review).toHaveProperty("owner", "bainesface");
+          expect(review).toHaveProperty("title", "Interesting review");
+          expect(review).toHaveProperty("review_body", "Great game");
+          expect(review).toHaveProperty("designer", "Abdullah");
+          expect(review).toHaveProperty("category", "dexterity");
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("votes", 0);
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+        });
+    });
+
+    test("201: Should ignore any extra keys on review and post without the extra keys", () => {
+      const newReview = {
+        owner: "bainesface",
+        title: "Interesting review",
+        review_body: "Great game",
+        designer: "Abdullah",
+        category: "dexterity",
+        review_img_url: "randomUrl",
+        randomKey: "irrelevant",
+      };
+      return request(app)
+        .post("/api/reviews")
+        .send(newReview)
+        .expect(201)
+        .then(({ body }) => {
+          const review = body;
+          expect(review).toHaveProperty("review_id", 14);
+          expect(review).toHaveProperty("owner", "bainesface");
+          expect(review).toHaveProperty("title", "Interesting review");
+          expect(review).toHaveProperty("review_body", "Great game");
+          expect(review).toHaveProperty("designer", "Abdullah");
+          expect(review).toHaveProperty("category", "dexterity");
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("votes", 0);
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+        });
+    });
+
+    test("201: should provide default url if not provided", () => {
+      const newReview = {
+        owner: "bainesface",
+        title: "Interesting review",
+        review_body: "Great game",
+        designer: "Abdullah",
+        category: "dexterity",
+      };
+      return request(app)
+        .post(`/api/reviews`)
+        .send(newReview)
+        .expect(201)
+        .then(({ body }) => {
+          const review = body;
+          expect(review).toHaveProperty("review_id", 14);
+          expect(review).toHaveProperty("owner", "bainesface");
+          expect(review).toHaveProperty("title", "Interesting review");
+          expect(review).toHaveProperty("review_body", "Great game");
+          expect(review).toHaveProperty("designer", "Abdullah");
+          expect(review).toHaveProperty("category", "dexterity");
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("votes", 0);
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+        });
+    });
+
+    test("400: Should return a bad request error if review has incorrect properties", () => {
+      const newReview = {
+        randomKey: "notWhatYouNeed",
+      };
+      return request(app)
+        .post("/api/reviews")
+        .send(newReview)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+
+    test("404: Should return a not found error when the username is non existent", () => {
+      const newReview = {
+        owner: "Ronaldo",
+        title: "Interesting review",
+        review_body: "Great game",
+        designer: "Abdullah",
+        category: "dexterity",
+        review_img_url: "randomUrl",
+      };
+      return request(app)
+        .post("/api/reviews")
+        .send(newReview)
+        .expect(404)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Not found");
         });
     });
   });
