@@ -122,10 +122,46 @@ const addComment = (newComment, reviewId) => {
     });
 };
 
+const addReview = (newReview) => {
+  return db
+    .query(
+      `INSERT INTO reviews
+    (title, designer, owner, review_body, category)
+    VALUES
+    ($1, $2, $3, $4, $5)
+    RETURNING *;`,
+      [
+        newReview.title,
+        newReview.designer,
+        newReview.owner,
+        newReview.review_body,
+        newReview.category,
+      ]
+    )
+    .then(({ rows }) => {
+      const postedReview = rows[0];
+      return db
+        .query(
+          `SELECT owner, title, review_body, designer, category, reviews.review_id, reviews.votes, reviews.created_at, review_img_url,
+        COUNT(reviews.review_id = comments.review_id)::int AS comment_count
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id
+        WHERE reviews.review_id = $1
+        GROUP BY reviews.review_id`,
+          [postedReview.review_id]
+        )
+        .then(({ rows }) => {
+          const reviewWithComments = rows[0];
+          return reviewWithComments;
+        });
+    });
+};
+
 module.exports = {
   fetchReviews,
   fetchReviewsById,
   updateReviewVotesById,
   fetchCommentsOfReview,
   addComment,
+  addReview,
 };
