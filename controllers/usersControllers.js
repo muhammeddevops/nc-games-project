@@ -15,7 +15,6 @@ const getUserByUsername = (request, response, next) => {
 
   fetchUserByUserName(username)
     .then((user) => {
-      console.log(user);
       response.status(200).send(user);
     })
     .catch((err) => {
