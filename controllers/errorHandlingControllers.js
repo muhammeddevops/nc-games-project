@@ -15,11 +15,15 @@ const handleSQLErrors = (error, request, response, next) => {
     response.status(400).send({ msg: "Bad request" });
   } else if (error.code === "23503") {
     response.status(404).send({ msg: "Not found" });
+  } else if (error.code === "2201W") {
+    response.status(400).send({ msg: "Limit provided is invalid" });
   }
 };
 
 const handleCustomErrors = (error, request, response, next) => {
-  if (error.msg === "Please select a valid order-by option") {
+  if (error.msg === "Error 404 page not found!") {
+    response.status(404).send({ msg: "Error 404 page not found!" });
+  } else if (error.msg === "Please select a valid order-by option") {
     response
       .status(400)
       .send({ msg: "Please order by ascending or descending" });
@@ -31,6 +35,8 @@ const handleCustomErrors = (error, request, response, next) => {
     response.status(400).send({ msg: "Please select a valid sort-by option!" });
   } else if (error.msg === "invalid comment id") {
     response.status(404).send({ msg: "Invalid comment id" });
+  } else if (error.msg === "Limit must be more than 0") {
+    response.status(400).send({ msg: "Limit must be more than 0" });
   } else if (error.status === 404) {
     response.status(404).send({ msg: "Value provided does not exist" });
   } else {

@@ -10,10 +10,16 @@ const {
 } = require("../models/reviewsModel.js");
 
 const getReviews = (request, response, next) => {
-  const { sort_by, order_by, category } = request.query;
+  const { sort_by, order_by, category, limit, p } = request.query;
   const promiseArr = [];
 
-  const fetchReviewPromise = fetchReviews(sort_by, order_by, category);
+  const fetchReviewPromise = fetchReviews(
+    sort_by,
+    order_by,
+    category,
+    limit,
+    p
+  );
   promiseArr.push(fetchReviewPromise);
 
   if (category) {
@@ -22,8 +28,8 @@ const getReviews = (request, response, next) => {
   }
 
   return Promise.all(promiseArr)
-    .then(([reviews]) => {
-      response.status(200).send({ reviews });
+    .then(([result]) => {
+      response.status(200).send(result);
     })
     .catch((err) => {
       next(err);

@@ -51,7 +51,7 @@ describe("app", () => {
         .get("/api/reviews")
         .expect(200)
         .then(({ body }) => {
-          const reviews = body.reviews;
+          const reviews = body.results;
 
           expect(reviews).toBeSortedBy("created_at", { descending: true });
 
@@ -70,6 +70,21 @@ describe("app", () => {
           });
         });
     });
+
+    // test.only("200: Should allow category to be given in upper case or lowercase", () => {
+    //   return request(app)
+    //     .get("/api/reviews?category=DEXTERITY")
+    //     .expect(200)
+    //     .then(({ body }) => {
+    //       const reviewsArr = body.results;
+    //       console.log(reviewsArr);
+    //       expect(reviewsArr).toHaveLength(10);
+    //       expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+    //       reviewsArr.forEach((review) => {
+    //         expect(review.category).toBe("social deduction");
+    //       });
+    //     });
+    // });
   });
 
   describe("GET /api/reviews/:review_id/comments", () => {
@@ -372,7 +387,7 @@ describe("app", () => {
         .get("/api/reviews")
         .expect(200)
         .then(({ body }) => {
-          const reviews = body.reviews;
+          const reviews = body.results;
           expect(reviews).toBeSortedBy("created_at", { descending: true });
           reviews.forEach((review) => {
             expect(review).toMatchObject({
@@ -395,8 +410,7 @@ describe("app", () => {
         .get("/api/reviews?category=social+deduction")
         .expect(200)
         .then(({ body }) => {
-          const reviewsArr = body.reviews;
-
+          const reviewsArr = body.results;
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
           reviewsArr.forEach((review) => {
             expect(review.category).toBe("social deduction");
@@ -409,7 +423,7 @@ describe("app", () => {
         .get("/api/reviews?sort_by=votes")
         .expect(200)
         .then(({ body }) => {
-          const reviewsArr = body.reviews;
+          const reviewsArr = body.results;
           expect(reviewsArr).toBeSortedBy("votes", { descending: true });
         });
     });
@@ -419,7 +433,7 @@ describe("app", () => {
         .get("/api/reviews?sort_by=designer")
         .expect(200)
         .then(({ body }) => {
-          const reviewsArr = body.reviews;
+          const reviewsArr = body.results;
           expect(reviewsArr).toBeSortedBy("designer", { descending: true });
         });
     });
@@ -429,7 +443,7 @@ describe("app", () => {
         .get("/api/reviews?order_by=ASC")
         .expect(200)
         .then(({ body }) => {
-          const reviews = body.reviews;
+          const reviews = body.results;
           expect(reviews).toBeSortedBy("created_at", { ascending: true });
         });
     });
@@ -441,7 +455,7 @@ describe("app", () => {
         )
         .expect(200)
         .then(({ body }) => {
-          const reviewsArr = body.reviews;
+          const reviewsArr = body.results;
           expect(reviewsArr).toBeSortedBy("title", { ascending: true });
           reviewsArr.forEach((review) => {
             expect(review.category).toBe("social deduction");
@@ -454,7 +468,7 @@ describe("app", () => {
         .get("/api/reviews?randomKey=irrelevant&category=social+deduction")
         .expect(200)
         .then(({ body }) => {
-          const reviewsArr = body.reviews;
+          const reviewsArr = body.results;
 
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
           reviewsArr.forEach((review) => {
@@ -768,6 +782,210 @@ describe("app", () => {
           const errorMessage = response.body.msg;
           expect(errorMessage).toBe("Not found");
         });
+    });
+  });
+
+  describe("GET /api/reviews (pagination)", () => {
+    test("200: Should have a default limit of 10 results", () => {
+      return request(app)
+        .get("/api/reviews?category=social+deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(10);
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    test("200: Should allow limit to be adjusted", () => {
+      return (
+        request(app)
+          // limit of 5
+          .get("/api/reviews?category=social+deduction&limit=5")
+          .expect(200)
+          .then(({ body }) => {
+            const reviewsArr = body.results;
+            expect(reviewsArr).toHaveLength(5);
+            expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+            reviewsArr.forEach((review) => {
+              expect(review.category).toBe("social deduction");
+            });
+          })
+      );
+    });
+
+    test("200: Should display a total_count property correctly", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(10);
+          expect(body.total_count).toBe(13);
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should have a page property which defaults to 1 and a range property, that gives the range of results on the given page", () => {
+      return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(10);
+          expect(body.total_count).toBe(13);
+          expect(body.page).toBe(1);
+          expect(body.range).toBe("Showing results 1 to 10");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should allow any page to be chosen", () => {
+      return request(app)
+        .get("/api/reviews?p=2")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(body.total_count).toBe(13);
+          expect(reviewsArr).toHaveLength(3);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing results 11 to 13");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should alter the range correctly to match the results on the page", () => {
+      return request(app)
+        .get("/api/reviews?limit=5&p=2")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(5);
+          expect(body.total_count).toBe(13);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing results 6 to 10");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should alter the range correctly when on the last page and the num of results is less than the limit", () => {
+      return request(app)
+        .get("/api/reviews?limit=5&p=3")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(3);
+          expect(body.total_count).toBe(13);
+          expect(body.page).toBe(3);
+          expect(body.range).toBe("Showing results 11 to 13");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should alter the range correctly when on the last page with only one result", () => {
+      return request(app)
+        .get("/api/reviews?category=social+deduction&limit=5&p=3")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(1);
+          expect(body.total_count).toBe(11);
+          expect(body.page).toBe(3);
+          expect(body.range).toBe("Showing result 11 of 11");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("200: Should allow all 5 queries to be used simultaneously", () => {
+      return request(app)
+        .get(
+          "/api/reviews?category=social+deduction&limit=5&p=2&sort_by=review_id&order_by=ASC"
+        )
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(5);
+          expect(body.total_count).toBe(11);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing results 6 to 10");
+          expect(reviewsArr).toBeSortedBy("review_id", { ascending: true });
+        });
+    });
+
+    test("200: Should ignore any extra invalid queries", () => {
+      return request(app)
+        .get(
+          "/api/reviews?category=social+deduction&limit=5&p=2&sort_by=review_id&order_by=ASC&random=irrelevant"
+        )
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(5);
+          expect(body.total_count).toBe(11);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing results 6 to 10");
+          expect(reviewsArr).toBeSortedBy("review_id", { ascending: true });
+        });
+    });
+
+    test("200: Should return max results if limit is higher than total count", () => {
+      return request(app)
+        .get("/api/reviews?category=social+deduction&limit=999")
+        .expect(200)
+        .then(({ body }) => {
+          const reviewsArr = body.results;
+          expect(reviewsArr).toHaveLength(11);
+          expect(body.page).toBe(1);
+          expect(body.range).toBe("Showing results 1 to 11");
+          expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
+          reviewsArr.forEach((review) => {
+            expect(review.category).toBe("social deduction");
+          });
+        });
+    });
+
+    describe("Pagination: Error handling", () => {
+      test("404: Should return a not found error when page selected does not exist", () => {
+        return request(app)
+          .get("/api/reviews?p=999")
+          .expect(404)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Error 404 page not found!");
+          });
+      });
+      test("400: Should return bad request error if limit 0", () => {
+        return request(app)
+          .get("/api/reviews?category=social+deduction&limit=0")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Limit must be more than 0");
+          });
+      });
+
+      test("400: Should return a bad request error when a non number is given for page", () => {
+        return request(app)
+          .get("/api/reviews?p=not-a-num")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+
+      test("400: Should return a bad request error when a non number is given for limit", () => {
+        return request(app)
+          .get("/api/reviews?limit=not-a-num")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 });
