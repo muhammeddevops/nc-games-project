@@ -7,6 +7,7 @@ const {
   fetchCommentsOfReview,
   addComment,
   addReview,
+  removeReview,
 } = require("../models/reviewsModel.js");
 
 const getReviews = (request, response, next) => {
@@ -102,6 +103,18 @@ const postReview = (request, response, next) => {
     });
 };
 
+const deleteReviewById = (request, response, next) => {
+  const { review_id } = request.params;
+
+  removeReview(review_id)
+    .then((result) => {
+      response.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getReviews,
   getReviewsById,
@@ -109,4 +122,5 @@ module.exports = {
   getCommentsOfReview,
   postComment,
   postReview,
+  deleteReviewById,
 };

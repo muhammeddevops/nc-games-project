@@ -266,6 +266,24 @@ const addReview = (newReview) => {
     });
 };
 
+const removeReview = (reviewId) => {
+  return db
+    .query(
+      `
+  DELETE FROM comments
+  WHERE comment_id = $1
+  RETURNING *;
+  `,
+      [reviewId]
+    )
+    .then(({ rows }) => {
+      const deletedReviewArr = rows;
+      if (!deletedReviewArr.length) {
+        return Promise.reject({ status: 404, msg: "invalid review id" });
+      }
+    });
+};
+
 module.exports = {
   fetchReviews,
   fetchReviewsById,
@@ -273,4 +291,5 @@ module.exports = {
   fetchCommentsOfReview,
   addComment,
   addReview,
+  removeReview,
 };
