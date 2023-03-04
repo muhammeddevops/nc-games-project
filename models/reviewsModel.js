@@ -1,6 +1,12 @@
 const db = require("../db/connection.js");
 
-const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
+const fetchReviews = (
+  sortBy = "created_at",
+  orderBy = "DESC",
+  category,
+  limit = 10,
+  page = 1
+) => {
   const queryValues = [];
 
   const validOrderOptions = ["ASC", "DESC"];
@@ -38,7 +44,7 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
     });
   }
   if (validOrderOptions.includes(orderBy)) {
-    queryString += `${orderBy};`;
+    queryString += `${orderBy}`;
   } else {
     return Promise.reject({
       status: 400,
@@ -47,7 +53,59 @@ const fetchReviews = (sortBy = "created_at", orderBy = "DESC", category) => {
   }
 
   return db.query(queryString, queryValues).then(({ rows }) => {
-    return rows;
+    const total_count = rows.length;
+
+    const offset = page * limit - limit;
+    queryValues.push(limit);
+    queryValues.push(offset);
+    if (category) {
+      queryString += ` LIMIT $2 OFFSET $3;`;
+    } else {
+      queryString += ` LIMIT $1 OFFSET $2;`;
+    }
+
+    return db.query(queryString, queryValues).then(({ rows }) => {
+      const results = rows;
+      limit = +limit;
+      page = +page;
+      let lowerRange = offset + 1;
+      let higherRange = offset + limit;
+
+      if (limit < 1) {
+        return Promise.reject({
+          status: 400,
+          msg: "Limit must be more than 0",
+        });
+      }
+
+      const remainder = total_count - (page - 1) * limit;
+
+      const accNumofPages = Math.ceil(total_count / limit);
+
+      // removed if statement to check if limit is more than TC
+
+      let range = "";
+      // make an if statement if last page or not
+      if (page === accNumofPages) {
+        //on last page
+        if (remainder === 1) {
+          range = `Showing result ${total_count} of ${total_count}`;
+        } else if (remainder > 1) {
+          range = `Showing results ${lowerRange} to ${total_count}`;
+        }
+      } else if (page > accNumofPages) {
+        // searching for non-existent pg
+        return Promise.reject({
+          status: 404,
+          msg: "Error 404 page not found!",
+        });
+      } else {
+        //on any pg other than last
+        range = `Showing results ${lowerRange} to ${higherRange}`;
+      }
+
+      return { total_count, page, range, results };
+    });
   });
 };
 
