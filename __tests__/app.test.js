@@ -995,7 +995,6 @@ describe("app", () => {
         .get("/api/reviews/3/comments")
         .expect(200)
         .then(({ body }) => {
-          console.log(body);
           const commentsArr = body.results;
           expect(commentsArr).toHaveLength(3);
         });

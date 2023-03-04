@@ -64,7 +64,6 @@ const patchReviewVotesById = (request, response, next) => {
 const getCommentsOfReview = (request, response, next) => {
   const { review_id } = request.params;
   const { limit, p } = request.query;
-  console.log(limit + p);
 
   const checkReviewExistsPromise = fetchReviewsById(review_id);
   const fetchCommentsPromise = fetchCommentsOfReview(review_id, limit, p);
@@ -72,11 +71,9 @@ const getCommentsOfReview = (request, response, next) => {
   Promise.all([[checkReviewExistsPromise], fetchCommentsPromise])
     .then((result) => {
       const reviews = result[1];
-      console.log(reviews);
       response.status(200).send(reviews);
     })
     .catch((error) => {
-      console.log(error);
       next(error);
     });
 };
