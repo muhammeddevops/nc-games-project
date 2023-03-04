@@ -1115,4 +1115,53 @@ describe("app", () => {
       });
     });
   });
+
+  describe("POST /api/categories", () => {
+    test("201: should accept category object and respond with posted category", () => {
+      const newCategory = {
+        slug: "category name here",
+        description: "description here",
+      };
+      return request(app)
+        .post(`/api/categories`)
+        .send(newCategory)
+        .expect(201)
+        .then(({ body }) => {
+          const category = body;
+          expect(category).toHaveProperty("slug", "category name here");
+          expect(category).toHaveProperty("description", "description here");
+        });
+    });
+
+    test("201: Should ignore any extra keys on category and post without the extra keys", () => {
+      const newCategory = {
+        slug: "category name here",
+        description: "description here",
+        randomKey: "irrelevant",
+      };
+      return request(app)
+        .post(`/api/categories`)
+        .send(newCategory)
+        .expect(201)
+        .then(({ body }) => {
+          const category = body;
+          expect(category).toHaveProperty("slug", "category name here");
+          expect(category).toHaveProperty("description", "description here");
+        });
+    });
+
+    test("400: Should return a bad request error if category has incorrect properties", () => {
+      const newCategory = {
+        randomKey: "notWhatYouNeed",
+      };
+      return request(app)
+        .post("/api/categories")
+        .send(newCategory)
+        .expect(400)
+        .then((response) => {
+          const errorMessage = response.body.msg;
+          expect(errorMessage).toBe("Bad request");
+        });
+    });
+  });
 });
