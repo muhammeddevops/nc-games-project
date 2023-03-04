@@ -988,4 +988,132 @@ describe("app", () => {
       });
     });
   });
+
+  describe.only("GET /api/reviews/:review_id/comments (pagination)", () => {
+    test("200: Should have a default limit of 10 results", () => {
+      return request(app)
+        .get("/api/reviews/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body);
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(3);
+        });
+    });
+
+    test("200: Should allow limit to be adjusted", () => {
+      return (
+        request(app)
+          // limit of 5
+          .get("/api/reviews/3/comments?limit=2")
+          .expect(200)
+          .then(({ body }) => {
+            const commentsArr = body.results;
+            expect(commentsArr).toHaveLength(2);
+          })
+      );
+    });
+
+    test("200: Should display a total_count property correctly", () => {
+      return request(app)
+        .get("/api/reviews/3/comments?limit=2")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(2);
+          expect(body.total_count).toBe(3);
+        });
+    });
+
+    test("200: Should have a page property which defaults to 1 and a range property, that gives the range of results on the given page", () => {
+      return request(app)
+        .get("/api/reviews/3/comments?limit=2")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(2);
+          expect(body.total_count).toBe(3);
+          expect(body.page).toBe(1);
+          expect(body.range).toBe("Showing results 1 to 2");
+        });
+    });
+
+    test("200: Should allow any page to be chosen", () => {
+      return request(app)
+        .get("/api/reviews/3/comments?limit=2&p=2")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(1);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing result 3 of 3");
+        });
+    });
+
+    test("200: Should ignore any extra invalid queries", () => {
+      return request(app)
+        .get("/api/reviews/3/comments?limit=2&p=2&randomKey=irrelevant")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(1);
+          expect(body.page).toBe(2);
+          expect(body.range).toBe("Showing result 3 of 3");
+        });
+    });
+
+    test("200: Should have a page property which defaults to 1 and a range property, that gives the range of results on the given page", () => {
+      return request(app)
+        .get("/api/reviews/3/comments?limit=999")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(3);
+          expect(body.total_count).toBe(3);
+          expect(body.page).toBe(1);
+          expect(body.range).toBe("Showing results 1 to 3");
+        });
+    });
+
+    describe("Pagination: Error handling", () => {
+      test("404: Should return a not found error when page selected does not exist", () => {
+        return request(app)
+          .get("/api/reviews/3/comments?p=999")
+          .expect(404)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Error 404 page not found!");
+          });
+      });
+      test("400: Should return bad request error if limit 0", () => {
+        return request(app)
+          .get("/api/reviews/3/comments?limit=0")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Limit must be more than 0");
+          });
+      });
+
+      test("400: Should return a bad request error when a non number is given for page", () => {
+        return request(app)
+          .get("/api/reviews/3/comments?p=not-a-num")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+
+      test("400: Should return a bad request error when a non number is given for limit", () => {
+        return request(app)
+          .get("/api/reviews/3/comments?limit=not-a-num")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+    });
+  });
 });
