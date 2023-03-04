@@ -189,8 +189,6 @@ const fetchCommentsOfReview = (reviewId, limit = 10, page = 1) => {
 
         const accNumofPages = Math.ceil(total_count / limit);
 
-        console.log(page, "page<<<");
-        console.log(accNumofPages, "accNum");
         let range = "";
         // make an if statement if last page or not
         if (page === accNumofPages) {

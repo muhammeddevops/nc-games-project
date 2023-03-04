@@ -94,7 +94,6 @@ describe("app", () => {
         .expect(200)
         .then(({ body }) => {
           const comments = body.results;
-          console.log(comments);
 
           expect(comments).toBeSortedBy("created_at", { descending: true });
 
@@ -126,7 +125,6 @@ describe("app", () => {
         .get("/api/reviews/999/comments")
         .expect(404)
         .then(({ body }) => {
-          console.log(body);
           expect(body.msg).toBe("Value provided does not exist");
         });
     });
