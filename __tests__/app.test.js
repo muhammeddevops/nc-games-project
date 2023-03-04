@@ -93,7 +93,8 @@ describe("app", () => {
         .get("/api/reviews/3/comments")
         .expect(200)
         .then(({ body }) => {
-          const comments = body;
+          const comments = body.results;
+          console.log(comments);
 
           expect(comments).toBeSortedBy("created_at", { descending: true });
 
@@ -115,7 +116,7 @@ describe("app", () => {
         .get("/api/reviews/5/comments")
         .expect(200)
         .then(({ body }) => {
-          const comments = body;
+          const comments = body.results;
           expect(comments).toEqual([]);
         });
     });
@@ -125,6 +126,7 @@ describe("app", () => {
         .get("/api/reviews/999/comments")
         .expect(404)
         .then(({ body }) => {
+          console.log(body);
           expect(body.msg).toBe("Value provided does not exist");
         });
     });
@@ -989,7 +991,7 @@ describe("app", () => {
     });
   });
 
-  describe.only("GET /api/reviews/:review_id/comments (pagination)", () => {
+  describe("GET /api/reviews/:review_id/comments (pagination)", () => {
     test("200: Should have a default limit of 10 results", () => {
       return request(app)
         .get("/api/reviews/3/comments")

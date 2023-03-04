@@ -68,7 +68,7 @@ const getCommentsOfReview = (request, response, next) => {
   const checkReviewExistsPromise = fetchReviewsById(review_id);
   const fetchCommentsPromise = fetchCommentsOfReview(review_id, limit, p);
 
-  Promise.all([[checkReviewExistsPromise], fetchCommentsPromise])
+  Promise.all([checkReviewExistsPromise, fetchCommentsPromise])
     .then((result) => {
       const reviews = result[1];
       response.status(200).send(reviews);

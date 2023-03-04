@@ -165,45 +165,55 @@ const fetchCommentsOfReview = (reviewId, limit = 10, page = 1) => {
     queryValues.push(offset);
 
     queryString += " LIMIT $2 OFFSET $3";
-    return db.query(queryString, queryValues).then(({ rows }) => {
-      const results = rows;
-      page = +page;
-      limit = +limit;
-      let lowerRange = offset + 1;
-      let higherRange = offset + limit;
-
-      if (limit < 1) {
-        return Promise.reject({
-          status: 400,
-          msg: "Limit must be more than 0",
-        });
-      }
-
-      const remainder = total_count - (page - 1) * limit;
-
-      const accNumofPages = Math.ceil(total_count / limit);
-      let range = "";
-      // make an if statement if last page or not
-      if (page === accNumofPages) {
-        //on last page
-        if (remainder === 1) {
-          range = `Showing result ${total_count} of ${total_count}`;
-        } else if (remainder > 1) {
-          range = `Showing results ${lowerRange} to ${total_count}`;
-        }
-      } else if (page > accNumofPages) {
-        // searching for non-existent pg
-        return Promise.reject({
-          status: 404,
-          msg: "Error 404 page not found!",
-        });
-      } else {
-        //on any pg other than last
-        range = `Showing results ${lowerRange} to ${higherRange}`;
-      }
-
+    if (total_count === 0) {
+      page = 1;
+      range = "No results to show";
+      results = [];
       return { total_count, page, range, results };
-    });
+    } else {
+      return db.query(queryString, queryValues).then(({ rows }) => {
+        const results = rows;
+        page = +page;
+        limit = +limit;
+        let lowerRange = offset + 1;
+        let higherRange = offset + limit;
+
+        if (limit < 1) {
+          return Promise.reject({
+            status: 400,
+            msg: "Limit must be more than 0",
+          });
+        }
+
+        const remainder = total_count - (page - 1) * limit;
+
+        const accNumofPages = Math.ceil(total_count / limit);
+
+        console.log(page, "page<<<");
+        console.log(accNumofPages, "accNum");
+        let range = "";
+        // make an if statement if last page or not
+        if (page === accNumofPages) {
+          //on last page
+          if (remainder === 1) {
+            range = `Showing result ${total_count} of ${total_count}`;
+          } else if (remainder > 1) {
+            range = `Showing results ${lowerRange} to ${total_count}`;
+          }
+        } else if (page > accNumofPages) {
+          // searching for non-existent pg
+          return Promise.reject({
+            status: 404,
+            msg: "Error 404 page not found!",
+          });
+        } else {
+          //on any pg other than last
+          range = `Showing results ${lowerRange} to ${higherRange}`;
+        }
+
+        return { total_count, page, range, results };
+      });
+    }
   });
 };
 
