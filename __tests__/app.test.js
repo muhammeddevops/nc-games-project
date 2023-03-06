@@ -70,21 +70,6 @@ describe("app", () => {
           });
         });
     });
-
-    // test.only("200: Should allow category to be given in upper case or lowercase", () => {
-    //   return request(app)
-    //     .get("/api/reviews?category=DEXTERITY")
-    //     .expect(200)
-    //     .then(({ body }) => {
-    //       const reviewsArr = body.results;
-    //       console.log(reviewsArr);
-    //       expect(reviewsArr).toHaveLength(10);
-    //       expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
-    //       reviewsArr.forEach((review) => {
-    //         expect(review.category).toBe("social deduction");
-    //       });
-    //     });
-    // });
   });
 
   describe("GET /api/reviews/:review_id/comments", () => {
