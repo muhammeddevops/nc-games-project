@@ -1,4 +1,3 @@
-const { request, response } = require("../db/app.js");
 const { fetchCategory } = require("../models/categoriesModel.js");
 const {
   fetchReviews,
