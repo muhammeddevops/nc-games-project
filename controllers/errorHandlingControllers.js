@@ -3,11 +3,8 @@ const handleWrongPathErrors = (request, response, next) => {
 };
 
 const handle500Errors = (error, request, response, next) => {
-  if (error.status === 500) {
-    response.status(500).send({ msg: "There has been a server error!" });
-  } else {
-    next(error);
-  }
+  console.log(error);
+  response.status(500).send({ msg: "There has been a server error!" });
 };
 
 const handleSQLErrors = (error, request, response, next) => {
