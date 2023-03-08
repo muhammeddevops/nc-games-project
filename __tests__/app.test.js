@@ -104,23 +104,24 @@ describe("app", () => {
           expect(comments).toEqual([]);
         });
     });
+    describe("GET comments error handling", () => {
+      test('404: responds with "Not found" error if given a non existent review id', () => {
+        return request(app)
+          .get("/api/reviews/999/comments")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Value provided does not exist");
+          });
+      });
 
-    test('404: responds with "Not found" error if given a non existent review id', () => {
-      return request(app)
-        .get("/api/reviews/999/comments")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Value provided does not exist");
-        });
-    });
-
-    test("400: responds with bad request error if not given a number ", () => {
-      return request(app)
-        .get("/api/reviews/words-not-num/comments")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
+      test("400: responds with bad request error if not given a number ", () => {
+        return request(app)
+          .get("/api/reviews/words-not-num/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -153,24 +154,27 @@ describe("app", () => {
           expect(review.comment_count).toBe(3);
         });
     });
-    test('404: responds with "Not Found" error', () => {
-      return request(app)
-        .get("/api/reviews/999")
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Value provided does not exist");
-        });
-    });
 
-    test('400: responds with "Bad request" error', () => {
-      return request(app)
-        .get("/api/reviews/not-a-number")
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
+    describe("GET review by id - Error handling", () => {
+      test('404: responds with "Not Found" error', () => {
+        return request(app)
+          .get("/api/reviews/999")
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Value provided does not exist");
+          });
+      });
+
+      test('400: responds with "Bad request" error', () => {
+        return request(app)
+          .get("/api/reviews/not-a-number")
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -214,62 +218,64 @@ describe("app", () => {
         });
     });
 
-    test("404: should return not found error when review is not found", () => {
-      const newComment = {
-        body: "The game was not that good, I think youre exaggerating",
-        username: "dav3rid",
-      };
-      return request(app)
-        .post("/api/reviews/999/comments")
-        .send(newComment)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Not found");
-        });
-    });
+    describe("POST comment - Error handling", () => {
+      test("404: should return not found error when review is not found", () => {
+        const newComment = {
+          body: "The game was not that good, I think youre exaggerating",
+          username: "dav3rid",
+        };
+        return request(app)
+          .post("/api/reviews/999/comments")
+          .send(newComment)
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Not found");
+          });
+      });
 
-    test("400: Should return a bad request error if comment has incorrect properties", () => {
-      const newComment = {
-        randomKey: "notWhatYouNeed",
-      };
-      return request(app)
-        .post("/api/reviews/3/comments")
-        .send(newComment)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
+      test("400: Should return a bad request error if comment has incorrect properties", () => {
+        const newComment = {
+          randomKey: "notWhatYouNeed",
+        };
+        return request(app)
+          .post("/api/reviews/3/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
 
-    test("404: Should return a not found error when the username is non existent", () => {
-      const newComment = {
-        body: "im not a user but i still want to comment",
-        username: "Lebron J",
-      };
-      return request(app)
-        .post("/api/reviews/3/comments")
-        .send(newComment)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Not found");
-        });
-    });
-    test("400: should return Bad request error when given a id that is not a number", () => {
-      const newComment = {
-        body: "I like this review",
-        username: "philippaclaire9",
-      };
-      return request(app)
-        .post("/api/reviews/not-a-num/comments")
-        .send(newComment)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
+      test("404: Should return a not found error when the username is non existent", () => {
+        const newComment = {
+          body: "im not a user but i still want to comment",
+          username: "Lebron J",
+        };
+        return request(app)
+          .post("/api/reviews/3/comments")
+          .send(newComment)
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Not found");
+          });
+      });
+      test("400: should return Bad request error when given a id that is not a number", () => {
+        const newComment = {
+          body: "I like this review",
+          username: "philippaclaire9",
+        };
+        return request(app)
+          .post("/api/reviews/not-a-num/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -320,49 +326,51 @@ describe("app", () => {
         });
     });
 
-    test("404: Should respond with a not found error if review id is non existent", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/reviews/999")
-        .send(voteIncrement)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Value provided does not exist");
-        });
-    });
-    test("400: Should respond with a Bad request error if increment is not a number", () => {
-      const voteIncrement = { inc_votes: "not-a-num" };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if no increment is provided", () => {
-      const voteIncrement = { randomKey: "random" };
-      return request(app)
-        .patch("/api/reviews/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if review id is not a number", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/reviews/not-a-num")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
+    describe("PATCH review votes - Error handling", () => {
+      test("404: Should respond with a not found error if review id is non existent", () => {
+        const voteIncrement = { inc_votes: 7 };
+        return request(app)
+          .patch("/api/reviews/999")
+          .send(voteIncrement)
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Value provided does not exist");
+          });
+      });
+      test("400: Should respond with a Bad request error if increment is not a number", () => {
+        const voteIncrement = { inc_votes: "not-a-num" };
+        return request(app)
+          .patch("/api/reviews/1")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+      test("400: should respond with a Bad request error if no increment is provided", () => {
+        const voteIncrement = { randomKey: "random" };
+        return request(app)
+          .patch("/api/reviews/1")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+      test("400: should respond with a Bad request error if review id is not a number", () => {
+        const voteIncrement = { inc_votes: 7 };
+        return request(app)
+          .patch("/api/reviews/not-a-num")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -462,34 +470,38 @@ describe("app", () => {
         });
     });
 
-    test("404: Should respond with not found error if the category does not exist", () => {
-      return request(app)
-        .get("/api/reviews?category=non-existent")
-        .expect(404)
-        .then(({ body }) => {
-          const errorMessage = body.msg;
-          expect(errorMessage).toBe("Please select a valid category!");
-        });
-    });
+    describe("Queries - Error handling", () => {
+      test("404: Should respond with not found error if the category does not exist", () => {
+        return request(app)
+          .get("/api/reviews?category=non-existent")
+          .expect(404)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Please select a valid category!");
+          });
+      });
 
-    test("400: Should respond with a Bad request error if passed an invalid sort_by option", () => {
-      return request(app)
-        .get("/api/reviews?sort_by=invalid")
-        .expect(400)
-        .then(({ body }) => {
-          const errorMessage = body.msg;
-          expect(errorMessage).toBe("Please select a valid sort-by option!");
-        });
-    });
+      test("400: Should respond with a Bad request error if passed an invalid sort_by option", () => {
+        return request(app)
+          .get("/api/reviews?sort_by=invalid")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Please select a valid sort-by option!");
+          });
+      });
 
-    test("400: Should respond with a Bad request error if order by is invalid", () => {
-      return request(app)
-        .get("/api/reviews?order_by=invalid")
-        .expect(400)
-        .then(({ body }) => {
-          const errorMessage = body.msg;
-          expect(errorMessage).toBe("Please order by ascending or descending");
-        });
+      test("400: Should respond with a Bad request error if order by is invalid", () => {
+        return request(app)
+          .get("/api/reviews?order_by=invalid")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe(
+              "Please order by ascending or descending"
+            );
+          });
+      });
     });
   });
 
@@ -497,23 +509,26 @@ describe("app", () => {
     test("204: Should delete the specified comment and return status 204 with no content", () => {
       return request(app).delete("/api/comments/5").expect(204);
     });
-    test("404: Should respond with a Not found error if passed an id that is valid but does not exist", () => {
-      return request(app)
-        .delete("/api/comments/999")
-        .expect(404)
-        .then(({ body }) => {
-          const errorMessage = body.msg;
-          expect(errorMessage).toBe("Invalid comment id");
-        });
-    });
-    test("400: Should respond with a Bad request error if passed an id that is not a string", () => {
-      return request(app)
-        .delete("/api/comments/invalid")
-        .expect(400)
-        .then(({ body }) => {
-          const errorMessage = body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
+
+    describe("DELETE comment - Error handling", () => {
+      test("404: Should respond with a Not found error if passed an id that is valid but does not exist", () => {
+        return request(app)
+          .delete("/api/comments/999")
+          .expect(404)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Invalid comment id");
+          });
+      });
+      test("400: Should respond with a Bad request error if passed an id that is not a string", () => {
+        return request(app)
+          .delete("/api/comments/invalid")
+          .expect(400)
+          .then(({ body }) => {
+            const errorMessage = body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -553,7 +568,7 @@ describe("app", () => {
           );
         });
     });
-    test("when given an invalid username, return an appropriate response", () => {
+    test("404: Should give a 'Not Found' error when given a username that doesnt exist", () => {
       return request(app)
         .get("/api/users/invalid")
         .expect(404)
@@ -605,49 +620,51 @@ describe("app", () => {
         });
     });
 
-    test("404: Should respond with a not found error if review id is non existent", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/comments/999")
-        .send(voteIncrement)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Value provided does not exist");
-        });
-    });
-    test("400: Should respond with a Bad request error if increment is not a number", () => {
-      const voteIncrement = { inc_votes: "not-a-num" };
-      return request(app)
-        .patch("/api/comments/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if no increment is provided", () => {
-      const voteIncrement = { randomKey: "random" };
-      return request(app)
-        .patch("/api/comments/1")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
-    test("400: should respond with a Bad request error if review id is not a number", () => {
-      const voteIncrement = { inc_votes: 7 };
-      return request(app)
-        .patch("/api/comments/not-a-num")
-        .send(voteIncrement)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
+    describe("PATCH comment votes - Error handling", () => {
+      test("404: Should respond with a not found error if review id is non existent", () => {
+        const voteIncrement = { inc_votes: 7 };
+        return request(app)
+          .patch("/api/comments/999")
+          .send(voteIncrement)
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Value provided does not exist");
+          });
+      });
+      test("400: Should respond with a Bad request error if increment is not a number", () => {
+        const voteIncrement = { inc_votes: "not-a-num" };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+      test("400: should respond with a Bad request error if no increment is provided", () => {
+        const voteIncrement = { randomKey: "random" };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
+      test("400: should respond with a Bad request error if review id is not a number", () => {
+        const voteIncrement = { inc_votes: 7 };
+        return request(app)
+          .patch("/api/comments/not-a-num")
+          .send(voteIncrement)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
     });
   });
 
@@ -736,37 +753,39 @@ describe("app", () => {
         });
     });
 
-    test("400: Should return a bad request error if review has incorrect properties", () => {
-      const newReview = {
-        randomKey: "notWhatYouNeed",
-      };
-      return request(app)
-        .post("/api/reviews")
-        .send(newReview)
-        .expect(400)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Bad request");
-        });
-    });
+    describe("POST review - Error handling", () => {
+      test("400: Should return a bad request error if review has incorrect properties", () => {
+        const newReview = {
+          randomKey: "notWhatYouNeed",
+        };
+        return request(app)
+          .post("/api/reviews")
+          .send(newReview)
+          .expect(400)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Bad request");
+          });
+      });
 
-    test("404: Should return a not found error when the username is non existent", () => {
-      const newReview = {
-        owner: "Ronaldo",
-        title: "Interesting review",
-        review_body: "Great game",
-        designer: "Abdullah",
-        category: "dexterity",
-        review_img_url: "randomUrl",
-      };
-      return request(app)
-        .post("/api/reviews")
-        .send(newReview)
-        .expect(404)
-        .then((response) => {
-          const errorMessage = response.body.msg;
-          expect(errorMessage).toBe("Not found");
-        });
+      test("404: Should return a not found error when the username is non existent", () => {
+        const newReview = {
+          owner: "Ronaldo",
+          title: "Interesting review",
+          review_body: "Great game",
+          designer: "Abdullah",
+          category: "dexterity",
+          review_img_url: "randomUrl",
+        };
+        return request(app)
+          .post("/api/reviews")
+          .send(newReview)
+          .expect(404)
+          .then((response) => {
+            const errorMessage = response.body.msg;
+            expect(errorMessage).toBe("Not found");
+          });
+      });
     });
   });
 
@@ -986,16 +1005,13 @@ describe("app", () => {
     });
 
     test("200: Should allow limit to be adjusted", () => {
-      return (
-        request(app)
-          // limit of 5
-          .get("/api/reviews/3/comments?limit=2")
-          .expect(200)
-          .then(({ body }) => {
-            const commentsArr = body.results;
-            expect(commentsArr).toHaveLength(2);
-          })
-      );
+      return request(app)
+        .get("/api/reviews/3/comments?limit=2")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArr = body.results;
+          expect(commentsArr).toHaveLength(2);
+        });
     });
 
     test("200: Should display a total_count property correctly", () => {
