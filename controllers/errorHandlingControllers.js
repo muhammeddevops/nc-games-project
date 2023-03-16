@@ -3,7 +3,6 @@ const handleWrongPathErrors = (request, response, next) => {
 };
 
 const handle500Errors = (error, request, response, next) => {
-  console.log(error);
   response.status(500).send({ msg: "There has been a server error!" });
 };
 

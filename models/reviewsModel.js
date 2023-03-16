@@ -104,7 +104,7 @@ const fetchReviews = (
         range = `Showing results ${lowerRange} to ${higherRange}`;
       }
 
-      return { total_count, page, range, results };
+      return { accNumofPages, total_count, page, range, results };
     });
   });
 };

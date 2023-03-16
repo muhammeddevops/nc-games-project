@@ -829,6 +829,7 @@ describe("app", () => {
           const reviewsArr = body.results;
           expect(reviewsArr).toHaveLength(10);
           expect(body.total_count).toBe(13);
+          expect(body.accNumofPages).toBe(2);
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
         });
     });
@@ -842,6 +843,7 @@ describe("app", () => {
           expect(reviewsArr).toHaveLength(10);
           expect(body.total_count).toBe(13);
           expect(body.page).toBe(1);
+          expect(body.accNumofPages).toBe(2);
           expect(body.range).toBe("Showing results 1 to 10");
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
         });
@@ -855,6 +857,7 @@ describe("app", () => {
           const reviewsArr = body.results;
           expect(body.total_count).toBe(13);
           expect(reviewsArr).toHaveLength(3);
+          expect(body.accNumofPages).toBe(2);
           expect(body.page).toBe(2);
           expect(body.range).toBe("Showing results 11 to 13");
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
@@ -869,6 +872,7 @@ describe("app", () => {
           const reviewsArr = body.results;
           expect(reviewsArr).toHaveLength(5);
           expect(body.total_count).toBe(13);
+          expect(body.accNumofPages).toBe(3);
           expect(body.page).toBe(2);
           expect(body.range).toBe("Showing results 6 to 10");
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
@@ -883,6 +887,7 @@ describe("app", () => {
           const reviewsArr = body.results;
           expect(reviewsArr).toHaveLength(3);
           expect(body.total_count).toBe(13);
+          expect(body.accNumofPages).toBe(3);
           expect(body.page).toBe(3);
           expect(body.range).toBe("Showing results 11 to 13");
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
@@ -898,6 +903,7 @@ describe("app", () => {
           expect(reviewsArr).toHaveLength(1);
           expect(body.total_count).toBe(11);
           expect(body.page).toBe(3);
+          expect(body.accNumofPages).toBe(3);
           expect(body.range).toBe("Showing result 11 of 11");
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
         });
@@ -913,6 +919,7 @@ describe("app", () => {
           const reviewsArr = body.results;
           expect(reviewsArr).toHaveLength(5);
           expect(body.total_count).toBe(11);
+          expect(body.accNumofPages).toBe(3);
           expect(body.page).toBe(2);
           expect(body.range).toBe("Showing results 6 to 10");
           expect(reviewsArr).toBeSortedBy("review_id", { ascending: true });
@@ -930,6 +937,7 @@ describe("app", () => {
           expect(reviewsArr).toHaveLength(5);
           expect(body.total_count).toBe(11);
           expect(body.page).toBe(2);
+          expect(body.accNumofPages).toBe(3);
           expect(body.range).toBe("Showing results 6 to 10");
           expect(reviewsArr).toBeSortedBy("review_id", { ascending: true });
         });
@@ -944,6 +952,7 @@ describe("app", () => {
           expect(reviewsArr).toHaveLength(11);
           expect(body.page).toBe(1);
           expect(body.range).toBe("Showing results 1 to 11");
+          expect(body.accNumofPages).toBe(1);
           expect(reviewsArr).toBeSortedBy("created_at", { descending: true });
           reviewsArr.forEach((review) => {
             expect(review.category).toBe("social deduction");
