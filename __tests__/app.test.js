@@ -46,7 +46,7 @@ describe("app", () => {
   });
 
   describe("GET /api/reviews", () => {
-    test("200: responds with an array of review objects, ordered by desc date ,each of which, should have 9 properties", () => {
+    test("200: responds with an array of review objects, ordered by desc date, each of which, should have 9 properties", () => {
       return request(app)
         .get("/api/reviews")
         .expect(200)
@@ -73,7 +73,7 @@ describe("app", () => {
   });
 
   describe("GET /api/reviews/:review_id/comments", () => {
-    test("200: responds with an array of comment objects if review has comments, ordered by desc date , each of which, should have 6 properties", () => {
+    test("200: responds with an array of comment objects if review has comments, ordered by desc date, each of which, should have 6 properties", () => {
       return request(app)
         .get("/api/reviews/3/comments")
         .expect(200)
