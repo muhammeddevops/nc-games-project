@@ -15,18 +15,36 @@
     }
   },
   "GET /api/reviews": {
-    "description": "serves an array of all reviews",
-    "queries": ["category", "sort_by", "order"],
+    "description": "serves an object that has various keys including one which is results which has an array of all reviews",
+    "queries": ["category", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "reviews": [
         {
-          "title": "One Night Ultimate Werewolf",
-          "designer": "Akihisa Okui",
-          "owner": "happyamy2016",
-          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-          "category": "hidden-roles",
-          "created_at": 1610964101251,
-          "votes": 5
+          "total_count": 10,
+          "accNumofPages": 2,
+          "page": 1,
+          "range": "Showing results 1 to 5",
+          "results": [
+            {
+              "title": "One Night Ultimate Werewolf",
+              "designer": "Akihisa Okui",
+              "owner": "happyamy2016",
+              "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+              "category": "hidden-roles",
+              "created_at": 1610964101251,
+              "votes": 5
+            },
+            {
+              "title": "Karma Karma Chameleon",
+              "designer": "Rikki Tahta",
+              "owner": "happyamy2016",
+              "review_img_url": "https://images.pexels.com/photos/45868/chameleon-reptile-lizard-green-45868.jpeg?w=700&h=700",
+              "review_body": "Try to trick your friends. If you find yourself being dealt the Chamelean card then the aim of the game is simple; blend in... Meanwhile the other players aim to be as vague as they can to not give the game away ",
+              "category": "hidden-roles",
+              "created_at": 1610964102151,
+              "votes": 5
+            }
+          ]
         }
       ]
     }
@@ -52,7 +70,7 @@
   },
   "GET /api/reviews/:review_id/comments": {
     "description": "serves an array of comment objects that correspond to a specific review",
-    "queries": [],
+    "queries": ["limit", "p"],
     "exampleApi": "/api/reviews/2/comments",
     "exampleResponseForAboveApi": {
       "comments": [
@@ -103,7 +121,7 @@
     }
   },
   "PATCH /api/reviews/:review_id": {
-    "description": "takes an object with a increment key updates the vote count of the specified review_id",
+    "description": "takes an object with an increment key which updates the vote count of the specified review_id",
     "queries": [],
     "exampleRequest": { "inc_votes": 3 },
     "exampleBodyBeforePatch": {
@@ -168,5 +186,84 @@
     "description": "deletes a comment from the inputted comment_id, no content is returned to the user",
     "queries": [],
     "exampleApi": "/api/reviews/2/comments"
+  },
+  "GET /api/users/:username": {
+    "description": "serves a single user object for a particular username",
+    "queries": [],
+    "exampleApi": "/api/users/grumpy19",
+    "exampleResponseForAboveApi": {
+      "username": "grumpy19",
+      "name": "Paul Grump",
+      "avatar_url": "https://vignette.wikia.nocookie.net/mrmen/images/7/78/Mr-Grumpy-3A.PNG/revision/latest?cb=20170707233013"
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "takes an object with an increment key which updates the vote count of the specified comment_id",
+    "queries": [],
+    "exampleRequest": { "inc_votes": 3 },
+    "exampleBodyBeforePatch": {
+      "comment": {
+        "comment_id": 10,
+        "body": "I loved this game too!",
+        "votes": 16,
+        "author": "happyamy2016",
+        "review_id": 2
+      }
+    },
+    "exampleApi": "/api/comments/10",
+    "exampleResponseForAboveApi": {
+      "comment": {
+        "comment_id": 10,
+        "body": "I loved this game too!",
+        "votes": 16,
+        "author": "happyamy2016",
+        "review_id": 5
+      }
+    }
+  },
+  "POST /api/reviews": {
+    "description": "takes a review object containing 6 keys and adds it as a review to the list of reviews and responds with the added review",
+    "queries": [],
+    "exampleRequest": {
+      "owner": "bainesface",
+      "title": "Interesting review",
+      "review_body": "Great game",
+      "designer": "James",
+      "category": "dexterity",
+      "review_img_url": "randomUrl"
+    },
+    "exampleApi": "/api/reviews",
+    "exampleResponseForAboveApi": {
+      "comment": {
+        "review_id": 14,
+        "owner": "bainesface",
+        "title": "Interesting review",
+        "review_body": "Great game",
+        "designer": "James",
+        "category": "dexterity",
+        "review_img_url": "randomUrl",
+        "votes": 0,
+        "created_at": "exampleDate",
+        "comment_count": 0
+      }
+    }
+  },
+  "POST /api/categories": {
+    "description": "takes a category object with the the keys, slug and description and adds it as a category to the list of reviews and responds with the added category",
+    "queries": [],
+    "exampleRequest": {
+      "slug": "category name here",
+      "description": "description here"
+    },
+    "exampleApi": "/api/categories",
+    "exampleResponseForAboveApi": {
+      "slug": "category name here",
+      "description": "description here"
+    }
+  },
+  "DELETE /api/reviews/:review_id": {
+    "description": "deletes a review from the inputted review_id, no content is returned to the user",
+    "queries": [],
+    "exampleApi": "/api/reviews/:review_id"
   }
 }
