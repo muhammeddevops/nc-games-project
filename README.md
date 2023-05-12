@@ -1,64 +1,74 @@
-# Northcoders House of Games API
+# 🎲 MK Board Games Backend API 🎲
 
-## Background
+Welcome to MK Board Games Backend API Backend API! This project is the backend for the MK Board Games React App. It acts as a bridge between the frontend and the database, allowing users to interact with the data by making HTTP requests through the API. This backend service stores the information about the reviews, likes, comments and users, and enables the frontend to retrieve, add, modify, and delete that data as necessary.
 
-We will be building an API for the purpose of accessing application data programmatically. The intention here is to mimic the building of a real world backend service (such as reddit) which should provide this information to the front end architecture.
+## 💻 Hosted Version 💻
 
-Your database will be PSQL, and you will interact with it using [node-postgres](https://node-postgres.com/).
+The hosted version of the API can be found at https://nc-games-uawn.onrender.com/api
 
-## Kanban
+## Cloning and Dependencies
 
-### Link to your Trello Board here: https://trello.com/b/0afa4nHX/muhammeds-board
-
-To keep track of the tasks involved in this project we're going to use a kanban board. Ensure that you work on one _ticket_ at time. You can click on the ticket to find out more information about what is required for the feature. A ticket is not considered complete unless both the happy path and errors response are handled. You can make use of the checklist on each ticket to keep track of the errors you want to handle. You can also make use of [error-handling.md](error-handling.md) to consider the error codes we may wish to respond with.
-
-**Please ensure you work through the tickets in numerical order.**
-
-## Git Branching and Pull Requests
-
-You will be working on each ticket on a new **branch**.
-
-To create and switch to a new git branch use the command:
+To clone this project to your local machine, use the following command:
 
 ```
-git checkout -b <new branch name>
+git clone https://github.com/muhammeddevops/nc-games-project
 ```
 
-This will create a branch and move over to that branch. (Omit the `-b` flag if you wish to switch to an already existing branch).
-
-We recommend that you name the branch after the number assigned to each ticket via the header. eg. `ncnews-1`
-
-When pushing the branch to git hub ensure that you make reference to the branch you are pushing to on the remote.
+Install the dependencies by running the following command:
 
 ```
-git push origin <branch name>
+npm install
 ```
 
-From github you can make a pull request and share the link and ticket number via a pull request specific nchelp using the command `nchelp pr`. A tutor will swing by to review your code. Ensure that you keep your trello up to date whilst you await the PR approval. Regular `nchelp` will be available for when you need support.
+The following dependencies will be installed:
 
-Once a pull request been accepted be sure to switch back to the main branch and pull down the updated changes.
+dotenv
+express
+pg
+pg-format
+
+## Environment Variables
+
+There are two .env files that need to be created: .development and .test. The .development file should contain the following environment variables:
+
+PGDATABASE=<database_name>
+
+The .test file should contain the same environment variable as the .development file, but with a different PGDATABASE name.
+
+## 🌱 Seeding the data bases 🌱
+
+To set up and seed the databases, run the following commands:
 
 ```
-git checkout main
-
-git pull origin main
+npm run setup-dbs
+npm run seed
 ```
 
-You can tidy up your local branches once they have been pull into main by deleting them:
+## 🧪️ Testing 🧪️
+
+To run the tests for this project, you'll need to install the following devDependencies:
+
+jest
+jest-extended
+supertest
+
+You can install these dependencies by running the following command:
 
 ```
-git branch -D <local branch>
+npm install --save-dev jest jest-extended supertest
 ```
 
-## Husky
+To run the tests, enter the following command:
 
-To ensure we are not commiting broken code this project makes use of git hooks. Git hooks are scripts triggered during certain events in the git lifecycle. Husky is a popular package which allows us to set up and maintain these scripts. This project makes use a _pre-commit hook_. When we attempt to commit our work, the script defined in the `pre-commit` file will run. If any of our tests fail than the commit will be aborted.
+```
+npm test
+```
 
-The [Husky documentation](https://typicode.github.io/husky/#/) explains how to configure Husky for your own project as well as creating your own custom hooks.\_
-<<<<<<< HEAD
-=======
+### Minimum Versions
 
-## Cloning this repo.
+The minimum versions of Node.js and Postgres needed to run this project are:
 
-Anyone who wishes to clone this repo will need to create two .env files for their project: .env.test and .env.development. Into each, add PGDATABASE=<database_name_here>, with the correct database name for that environment (see /db/setup.sql for the database names). Double check that these .env files are .gitignored.
->>>>>>> task-3
+Node.js: v18.12.0
+Postgres: v12.0
+
+Thank you for using MK Board Games Backend API!
